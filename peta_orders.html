@@ -17,6 +17,7 @@
       background-color: #f5f7fa;
       color: #333;
       overflow: hidden;
+      height: 100vh;
     }
 
     .container {
@@ -358,6 +359,8 @@
       margin-top: 20px;
       box-shadow: 0 4px 15px rgba(66, 133, 244, 0.4);
       transition: all 0.2s;
+      text-decoration: none;
+      text-align: center;
     }
 
     .contact-btn:hover {
@@ -546,6 +549,34 @@
     .error-message button:hover {
       background: #3367d6;
     }
+    
+    .status-indicator {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      background: white;
+      padding: 8px 15px;
+      border-radius: 20px;
+      font-weight: 500;
+      z-index: 6;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      display: none;
+    }
+    
+    .status-pending {
+      color: #fbbc05;
+      border: 1px solid #fbbc05;
+    }
+    
+    .status-accepted {
+      color: #34a853;
+      border: 1px solid #34a853;
+    }
+    
+    .status-cancelled {
+      color: #ea4335;
+      border: 1px solid #ea4335;
+    }
   </style>
 </head>
 <body>
@@ -572,12 +603,14 @@
       <div class="radar" id="radar">
         <span>Mencari driver...</span>
       </div>
+      
+      <div class="status-indicator" id="statusIndicator"></div>
     </div>
     
     <div class="order-summary" id="orderSummary">
       <div class="summary-header">
         <h2>Ringkasan Order</h2>
-        <div class="vehicle-type">MOTOR</div>
+        <div class="vehicle-type" id="vehicleTypeDisplay">MOTOR</div>
       </div>
       
       <div class="location-item">
@@ -586,7 +619,7 @@
         </div>
         <div class="location-details">
           <h3>Lokasi Jemput</h3>
-          <p id="pickupAddress">Jl. Sudirman No. 123, Jakarta Pusat</p>
+          <p id="pickupAddress">-</p>
         </div>
       </div>
       
@@ -596,7 +629,7 @@
         </div>
         <div class="location-details">
           <h3>Lokasi Tujuan</h3>
-          <p id="destinationAddress">Grand Indonesia, Jakarta Pusat</p>
+          <p id="destinationAddress">-</p>
         </div>
       </div>
       
@@ -604,17 +637,17 @@
       
       <div class="info-row">
         <div class="info-label">Durasi Perjalanan</div>
-        <div class="info-value" id="duration">15 menit</div>
+        <div class="info-value" id="duration">-</div>
       </div>
       
       <div class="info-row">
         <div class="info-label">Jarak</div>
-        <div class="info-value" id="distance">4.2 km</div>
+        <div class="info-value" id="distance">-</div>
       </div>
       
       <div class="info-row">
         <div class="info-label">Total Harga</div>
-        <div class="price-value" id="totalPrice">Rp 21.000</div>
+        <div class="price-value" id="totalPrice">Rp 0</div>
       </div>
       
       <div class="action-buttons">
@@ -639,7 +672,7 @@
         <div class="driver-avatar">
           <i class="fas fa-user"></i>
         </div>
-        <h2 id="driverName">Budi Santoso</h2>
+        <h2 id="driverName">-</h2>
         <div class="driver-rating">
           <i class="fas fa-star"></i>
           <i class="fas fa-star"></i>
@@ -650,13 +683,13 @@
         </div>
         <div class="driver-vehicle">
           <i class="fas fa-motorcycle"></i>
-          <span id="vehicleType">Motor - Yamaha Mio</span>
+          <span id="driverVehicleType">-</span>
         </div>
       </div>
       
       <div class="status-bar">
         <i class="fas fa-check-circle"></i>
-        Driver dalam perjalanan menuju lokasi Anda
+        <span id="driverStatusText">Driver dalam perjalanan menuju lokasi Anda</span>
       </div>
       
       <div class="location-item">
@@ -665,7 +698,7 @@
         </div>
         <div class="location-details">
           <h3>Lokasi Jemput</h3>
-          <p id="driverPickupAddress">Jl. Sudirman No. 123, Jakarta Pusat</p>
+          <p id="driverPickupAddress">-</p>
         </div>
       </div>
       
@@ -675,80 +708,145 @@
         </div>
         <div class="location-details">
           <h3>Lokasi Tujuan</h3>
-          <p id="driverDestinationAddress">Grand Indonesia, Jakarta Pusat</p>
+          <p id="driverDestinationAddress">-</p>
         </div>
       </div>
       
       <div class="info-row">
         <div class="info-label">Durasi Perjalanan</div>
-        <div class="info-value" id="driverDuration">15 menit</div>
+        <div class="info-value" id="driverDuration">-</div>
       </div>
       
       <div class="info-row">
         <div class="info-label">Total Harga</div>
-        <div class="price-value" id="driverPrice">Rp 21.000</div>
+        <div class="price-value" id="driverPrice">Rp 0</div>
       </div>
       
-      <a href="tel:+628123456789" class="contact-btn">
+      <a href="#" class="contact-btn" id="contactDriverBtn">
         <i class="fas fa-phone"></i> Hubungi Driver
       </a>
     </div>
     
     <div class="loading" id="loading">
       <div class="spinner"></div>
-      <p>Memproses...</p>
+      <p id="loadingText">Memproses...</p>
     </div>
     
     <div class="error-message" id="errorMessage">
       <h3>Error: Autocomplete Tidak Berfungsi</h3>
-      <p>Pastikan API Key memiliki akses ke Google Places API dan Maps JavaScript API.</p>
+      <p id="errorDetail">Pastikan API Key memiliki akses ke Google Places API dan Maps JavaScript API.</p>
       <button id="reloadBtn">Coba Lagi</button>
     </div>
   </div>
   
   <div class="notification" id="notification">
     <i class="fas fa-check-circle"></i>
-    <span>Order berhasil dikirim!</span>
+    <span id="notificationText">Order berhasil dikirim!</span>
   </div>
 
   <script>
-    // Data simulasi untuk contoh
+    // Data order
     const orderData = {
-      from: "Jl. Sudirman No. 123, Jakarta Pusat",
-      to: "Grand Indonesia, Jakarta Pusat",
-      vehicle: "motor",
-      distance: "4.2 km",
-      duration: "15 menit",
-      totalPrice: 21000,
-      userID: "V7CZwD0rSeQyQPN3AbWIPWMShfz1",
-      userName: "Iron Yusuf",
-      phone: "082311640444",
+      from: "",
+      to: "",
+      vehicle: "",
+      distance: "",
+      duration: "",
+      totalPrice: 0,
+      userID: "",
+      userName: "",
+      phone: "",
       status: "pending",
-      from_lat: -6.2088,
-      from_lng: 106.8456,
-      to_lat: -6.1950,
-      to_lng: 106.8205
+      from_lat: 0,
+      from_lng: 0,
+      to_lat: 0,
+      to_lng: 0
     };
 
     const driverData = {
-      driverID: "B1234XYZ",
-      driverName: "Budi Santoso",
-      kendaraan_driver: "Yamaha Mio",
-      phone: "08123456789"
+      driverID: "",
+      driverName: "",
+      driverPhone: "",
+      kendaraan_driver: ""
     };
 
-    // Variabel global untuk autocomplete
+    // Firebase
+    let firebaseDb;
+    let firebaseInitialized = false;
+    let orderRef;
+    let routeCalculated = false;
+    
+    // Google Maps
+    let map;
+    let directionsService;
+    let directionsRenderer;
+    let markerA, markerB;
     let autocompleteFrom, autocompleteTo;
     let mapInitialized = false;
+
+    // Parse URL parameters
+    const urlParams = new URLSearchParams(window.location.search);
+    
+    // Get all required parameters
+    const getUrlParam = (param) => {
+      return urlParams.get(param) || "";
+    };
+    
+    // Initialize order data from URL parameters
+    function initOrderData() {
+      orderData.vehicle = getUrlParam("vehicle") || "motor";
+      orderData.userID = getUrlParam("userID");
+      orderData.userName = getUrlParam("userName");
+      orderData.phone = getUrlParam("phone");
+      orderData.order_id = getUrlParam("order_id");
+      
+      // Set harga per km
+      const hargaPerKm = parseFloat(getUrlParam("harga")) || 0;
+      orderData.hargaPerKm = hargaPerKm;
+      
+      // Set initial locations
+      const fromParam = getUrlParam("from");
+      const toParam = getUrlParam("to");
+      
+      if (fromParam) {
+        const [lat, lng] = fromParam.split(",").map(Number);
+        if (!isNaN(lat) orderData.from_lat = lat;
+        if (!isNaN(lng)) orderData.from_lng = lng;
+      }
+      
+      if (toParam) {
+        const [lat, lng] = toParam.split(",").map(Number);
+        if (!isNaN(lat)) orderData.to_lat = lat;
+        if (!isNaN(lng)) orderData.to_lng = lng;
+      }
+      
+      // Set vehicle type display
+      const vehicleNames = {
+        motor: "MOTOR",
+        mobil: "MOBIL",
+        kurir: "KURIR",
+        bentor: "BENTOR",
+        pickup: "PICKUP",
+        pickup_scooter: "PICKUP SCOOTER"
+      };
+      
+      document.getElementById("vehicleTypeDisplay").textContent = 
+        vehicleNames[orderData.vehicle] || "MOTOR";
+    }
 
     // Fungsi inisialisasi peta
     function initMap() {
       try {
-        const lokasiA = { lat: orderData.from_lat, lng: orderData.from_lng };
-        const lokasiB = { lat: orderData.to_lat, lng: orderData.to_lng };
+        // Get Google Maps API key
+        const key = getUrlParam("key");
+        if (!key) {
+          showError("API Key Google Maps tidak ditemukan di URL.");
+          return;
+        }
         
-        // Buat peta
-        const map = new google.maps.Map(document.getElementById("map"), {
+        // Initialize map
+        const lokasiA = { lat: orderData.from_lat, lng: orderData.from_lng };
+        map = new google.maps.Map(document.getElementById("map"), {
           zoom: 15,
           center: lokasiA,
           mapTypeControl: false,
@@ -781,29 +879,9 @@
           ]
         });
         
-        // Tambahkan marker lokasi A
-        new google.maps.Marker({
-          position: lokasiA,
-          map: map,
-          icon: {
-            url: "https://cdn-icons-png.flaticon.com/512/684/684908.png",
-            scaledSize: new google.maps.Size(40, 40)
-          }
-        });
-        
-        // Tambahkan marker lokasi B
-        new google.maps.Marker({
-          position: lokasiB,
-          map: map,
-          icon: {
-            url: "https://cdn-icons-png.flaticon.com/512/447/447031.png",
-            scaledSize: new google.maps.Size(40, 40)
-          }
-        });
-        
-        // Tambahkan rute
-        const directionsService = new google.maps.DirectionsService();
-        const directionsRenderer = new google.maps.DirectionsRenderer({
+        // Initialize directions service
+        directionsService = new google.maps.DirectionsService();
+        directionsRenderer = new google.maps.DirectionsRenderer({
           map: map,
           suppressMarkers: true,
           polylineOptions: {
@@ -813,20 +891,60 @@
           }
         });
         
-        directionsService.route(
-          {
-            origin: lokasiA,
-            destination: lokasiB,
-            travelMode: google.maps.TravelMode.DRIVING
-          },
-          (response, status) => {
-            if (status === "OK") {
-              directionsRenderer.setDirections(response);
+        // Add markers if locations are provided
+        if (orderData.from_lat && orderData.from_lng) {
+          markerA = new google.maps.Marker({
+            position: lokasiA,
+            map: map,
+            icon: {
+              url: "https://cdn-icons-png.flaticon.com/512/684/684908.png",
+              scaledSize: new google.maps.Size(40, 40)
             }
-          }
-        );
+          });
+          
+          // Reverse geocode to get address
+          reverseGeocode(lokasiA, (address) => {
+            if (address) {
+              orderData.from = address;
+              document.getElementById("fromInput").value = address;
+              document.getElementById("pickupAddress").textContent = address;
+            }
+          });
+        }
         
-        // Inisialisasi autocomplete setelah peta siap
+        if (orderData.to_lat && orderData.to_lng) {
+          const lokasiB = { lat: orderData.to_lat, lng: orderData.to_lng };
+          markerB = new google.maps.Marker({
+            position: lokasiB,
+            map: map,
+            icon: {
+              url: "https://cdn-icons-png.flaticon.com/512/447/447031.png",
+              scaledSize: new google.maps.Size(40, 40)
+            }
+          });
+          
+          // Reverse geocode to get address
+          reverseGeocode(lokasiB, (address) => {
+            if (address) {
+              orderData.to = address;
+              document.getElementById("toInput").value = address;
+              document.getElementById("destinationAddress").textContent = address;
+            }
+          });
+        }
+        
+        // Calculate route if both locations are provided
+        if (orderData.from_lat && orderData.from_lng && 
+            orderData.to_lat && orderData.to_lng) {
+          calculateRoute();
+        } else {
+          // Show order summary if both addresses are available
+          if (orderData.from && orderData.to) {
+            showOrderSummary();
+          }
+        }
+        
+        // Initialize autocomplete
         initAutocomplete();
         mapInitialized = true;
         
@@ -864,12 +982,33 @@
             console.error("Place details not available for input: 'fromInput'");
             return;
           }
+          
           // Update data order
           orderData.from = place.formatted_address;
           orderData.from_lat = place.geometry.location.lat();
           orderData.from_lng = place.geometry.location.lng();
-          // Tampilkan ringkasan jika kedua alamat sudah diisi
-          if (orderData.to) {
+          
+          // Update UI
+          document.getElementById("pickupAddress").textContent = place.formatted_address;
+          
+          // Add/update marker
+          if (markerA) markerA.setMap(null);
+          markerA = new google.maps.Marker({
+            position: place.geometry.location,
+            map: map,
+            icon: {
+              url: "https://cdn-icons-png.flaticon.com/512/684/684908.png",
+              scaledSize: new google.maps.Size(40, 40)
+            }
+          });
+          
+          // Pan to new location
+          map.panTo(place.geometry.location);
+          
+          // Calculate route if destination is available
+          if (markerB) {
+            calculateRoute();
+          } else if (orderData.to) {
             showOrderSummary();
           }
         });
@@ -881,12 +1020,30 @@
             console.error("Place details not available for input: 'toInput'");
             return;
           }
+          
           // Update data order
           orderData.to = place.formatted_address;
           orderData.to_lat = place.geometry.location.lat();
           orderData.to_lng = place.geometry.location.lng();
-          // Tampilkan ringkasan jika kedua alamat sudah diisi
-          if (orderData.from) {
+          
+          // Update UI
+          document.getElementById("destinationAddress").textContent = place.formatted_address;
+          
+          // Add/update marker
+          if (markerB) markerB.setMap(null);
+          markerB = new google.maps.Marker({
+            position: place.geometry.location,
+            map: map,
+            icon: {
+              url: "https://cdn-icons-png.flaticon.com/512/447/447031.png",
+              scaledSize: new google.maps.Size(40, 40)
+            }
+          });
+          
+          // Calculate route if start location is available
+          if (markerA) {
+            calculateRoute();
+          } else if (orderData.from) {
             showOrderSummary();
           }
         });
@@ -899,106 +1056,367 @@
       }
     }
 
-    // Fungsi untuk menampilkan pesan error
-    function showError(message) {
-      const errorEl = document.getElementById('errorMessage');
-      errorEl.querySelector('p').textContent = message;
-      errorEl.style.display = 'block';
+    // Calculate route between two points
+    function calculateRoute() {
+      if (!markerA || !markerB) return;
+      
+      const from = markerA.getPosition();
+      const to = markerB.getPosition();
+      
+      document.getElementById("loadingText").textContent = "Menghitung rute...";
+      document.getElementById("loading").style.display = "flex";
+      
+      directionsService.route({
+        origin: from,
+        destination: to,
+        travelMode: google.maps.TravelMode.DRIVING,
+        region: "ID",
+        drivingOptions: {
+          departureTime: new Date(),
+          trafficModel: google.maps.TrafficModel.BEST_GUESS
+        },
+        provideRouteAlternatives: false
+      }, (response, status) => {
+        document.getElementById("loading").style.display = "none";
+        
+        if (status === "OK") {
+          directionsRenderer.setDirections(response);
+          const leg = response.routes[0].legs[0];
+          
+          // Get duration with traffic
+          const durationText = leg.duration_in_traffic ? 
+            leg.duration_in_traffic.text : leg.duration.text;
+            
+          // Calculate price
+          const distanceKm = leg.distance.value / 1000;
+          const totalPrice = Math.round(distanceKm * orderData.hargaPerKm);
+          
+          // Update order data
+          orderData.distance = leg.distance.text;
+          orderData.duration = durationText;
+          orderData.totalPrice = totalPrice;
+          
+          // Update UI
+          document.getElementById("duration").textContent = durationText;
+          document.getElementById("distance").textContent = leg.distance.text;
+          document.getElementById("totalPrice").textContent = `Rp ${totalPrice.toLocaleString("id-ID")}`;
+          
+          // Show order summary
+          showOrderSummary();
+          routeCalculated = true;
+        } else {
+          showNotification(`Gagal menghitung rute: ${status}`, "error");
+        }
+      });
     }
 
     // Fungsi untuk menampilkan ringkasan order
     function showOrderSummary() {
+      if (!orderData.from || !orderData.to) return;
+      
       document.getElementById("orderSummary").style.display = "block";
       document.getElementById("pickupAddress").textContent = orderData.from;
       document.getElementById("destinationAddress").textContent = orderData.to;
-      document.getElementById("duration").textContent = orderData.duration;
-      document.getElementById("distance").textContent = orderData.distance;
-      document.getElementById("totalPrice").textContent = `Rp ${orderData.totalPrice.toLocaleString("id-ID")}`;
       
       // Animasi scroll ke atas
       document.querySelector(".order-summary").scrollIntoView({ behavior: "smooth" });
     }
 
-    // Fungsi untuk mengirim order ke Firebase
+    // Initialize Firebase
+    function initFirebase() {
+      try {
+        const firebaseConfigParam = getUrlParam("firebaseConfig");
+        if (!firebaseConfigParam) {
+          console.log("Firebase config not provided");
+          return;
+        }
+        
+        // Decode and parse Firebase config
+        const decodedConfig = decodeURIComponent(firebaseConfigParam);
+        const firebaseConfig = JSON.parse(decodedConfig);
+        
+        // Load Firebase scripts dynamically
+        const firebaseScript = document.createElement('script');
+        firebaseScript.src = 'https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js';
+        firebaseScript.onload = () => {
+          const authScript = document.createElement('script');
+          authScript.src = 'https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js';
+          authScript.onload = () => {
+            firebase.initializeApp(firebaseConfig);
+            firebaseDb = firebase.database();
+            firebaseInitialized = true;
+            console.log('Firebase initialized successfully');
+            
+            // Setup Firebase listener
+            setupFirebaseListener();
+          };
+          document.head.appendChild(authScript);
+        };
+        document.head.appendChild(firebaseScript);
+        
+      } catch (e) {
+        console.error('Firebase initialization error:', e);
+        showNotification('Error initializing Firebase: ' + e.message, 'error');
+      }
+    }
+
+    // Setup Firebase listener for order status changes
+    function setupFirebaseListener() {
+      if (!firebaseInitialized || !orderData.order_id) return;
+      
+      orderRef = firebaseDb.ref(`orders/${orderData.order_id}`);
+      
+      orderRef.on('value', (snapshot) => {
+        const data = snapshot.val();
+        if (!data) return;
+        
+        // Update order status
+        orderData.status = data.status || "pending";
+        
+        // Handle status changes
+        handleStatusChange(data);
+      });
+    }
+
+    // Handle order status changes
+    function handleStatusChange(data) {
+      const statusIndicator = document.getElementById("statusIndicator");
+      
+      switch (orderData.status) {
+        case "dibatalkan_penumpang":
+          statusIndicator.textContent = "Order Dibatalkan";
+          statusIndicator.className = "status-indicator status-cancelled";
+          statusIndicator.style.display = "block";
+          
+          showNotification("Order telah dibatalkan", "error");
+          resetOrderForm();
+          break;
+          
+        case "di_ambil":
+          statusIndicator.textContent = "Driver Menuju Lokasi";
+          statusIndicator.className = "status-indicator status-accepted";
+          statusIndicator.style.display = "block";
+          
+          // Update driver data
+          driverData.driverID = data.driverID || "";
+          driverData.driverName = data.driverName || "";
+          driverData.driverPhone = data.driverPhone || "";
+          driverData.kendaraan_driver = data.kendaraan_driver || "";
+          
+          showDriverScreen();
+          break;
+          
+        case "dalam_perjalanan":
+          statusIndicator.textContent = "Dalam Perjalanan";
+          statusIndicator.className = "status-indicator status-accepted";
+          statusIndicator.style.display = "block";
+          
+          document.getElementById("driverStatusText").textContent = 
+            "Sedang dalam perjalanan menuju tujuan";
+          break;
+          
+        case "selesai":
+          statusIndicator.textContent = "Perjalanan Selesai";
+          statusIndicator.className = "status-indicator status-accepted";
+          statusIndicator.style.display = "block";
+          
+          document.getElementById("driverStatusText").textContent = 
+            "Perjalanan telah selesai";
+          break;
+      }
+      
+      // Send status to app
+      sendToAppInventor({
+        action: "status_update",
+        status: orderData.status,
+        order_id: orderData.order_id
+      });
+    }
+
+    // Send order to Firebase
     function sendOrderToFirebase() {
-      // Simulasi loading
+      if (!firebaseInitialized) {
+        showNotification("Firebase belum diinisialisasi", "error");
+        return;
+      }
+      
+      if (!orderData.order_id) {
+        showNotification("ID Order tidak ditemukan", "error");
+        return;
+      }
+      
+      if (!routeCalculated) {
+        showNotification("Harap tentukan rute terlebih dahulu", "error");
+        return;
+      }
+      
+      document.getElementById("loadingText").textContent = "Mengirim order...";
       document.getElementById("loading").style.display = "flex";
       
-      // Simulasi pengiriman data ke Firebase
-      setTimeout(() => {
-        document.getElementById("loading").style.display = "none";
-        
-        // Tampilkan notifikasi berhasil
-        const notification = document.getElementById("notification");
-        notification.classList.add("success");
-        notification.innerHTML = '<i class="fas fa-check-circle"></i><span>Order berhasil dikirim! Mencari driver...</span>';
-        notification.style.display = "flex";
-        
-        // Tampilkan animasi radar
-        document.getElementById("radar").style.display = "flex";
-        
-        // Simulasi driver ditemukan setelah 5 detik
-        setTimeout(() => {
-          document.getElementById("radar").style.display = "none";
-          showDriverScreen();
-        }, 5000);
-        
-        // Sembunyikan notifikasi setelah 3 detik
-        setTimeout(() => {
-          notification.style.display = "none";
-        }, 3000);
-      }, 1500);
+      // Prepare order data
+      const orderPayload = {
+        from: orderData.from,
+        to: orderData.to,
+        from_latlng: `${orderData.from_lat},${orderData.from_lng}`,
+        to_latlng: `${orderData.to_lat},${orderData.to_lng}`,
+        vehicle: orderData.vehicle,
+        distance: orderData.distance,
+        duration: orderData.duration,
+        totalPrice: orderData.totalPrice,
+        userID: orderData.userID,
+        userName: orderData.userName,
+        phone: orderData.phone,
+        status: "pending",
+        timestamp: firebase.database.ServerValue.TIMESTAMP
+      };
+      
+      // Send to Firebase
+      orderRef.set(orderPayload)
+        .then(() => {
+          document.getElementById("loading").style.display = "none";
+          showNotification("Order berhasil dikirim! Mencari driver...", "success");
+          
+          // Show radar animation
+          document.getElementById("radar").style.display = "flex";
+          
+          // Update status indicator
+          const statusIndicator = document.getElementById("statusIndicator");
+          statusIndicator.textContent = "Mencari Driver";
+          statusIndicator.className = "status-indicator status-pending";
+          statusIndicator.style.display = "block";
+          
+          // Hide notification after 3 seconds
+          setTimeout(() => {
+            document.getElementById("notification").style.display = "none";
+          }, 3000);
+        })
+        .catch((error) => {
+          document.getElementById("loading").style.display = "none";
+          showNotification("Gagal mengirim order: " + error.message, "error");
+        });
     }
 
     // Fungsi untuk menampilkan layar driver
     function showDriverScreen() {
       document.getElementById("driverScreen").style.display = "flex";
       document.getElementById("driverName").textContent = driverData.driverName;
-      document.getElementById("vehicleType").textContent = driverData.kendaraan_driver;
+      document.getElementById("driverVehicleType").textContent = driverData.kendaraan_driver;
       document.getElementById("driverPickupAddress").textContent = orderData.from;
       document.getElementById("driverDestinationAddress").textContent = orderData.to;
       document.getElementById("driverDuration").textContent = orderData.duration;
       document.getElementById("driverPrice").textContent = `Rp ${orderData.totalPrice.toLocaleString("id-ID")}`;
       
-      // Update link telepon
-      document.querySelector(".contact-btn").href = `tel:${driverData.phone}`;
+      // Update contact button
+      const contactBtn = document.getElementById("contactDriverBtn");
+      if (driverData.driverPhone) {
+        contactBtn.href = `tel:${driverData.driverPhone}`;
+      } else {
+        contactBtn.style.display = "none";
+      }
     }
 
-    // Fungsi untuk membatalkan order
-    function cancelOrder() {
-      // Simulasi pengiriman status dibatalkan
+    // Reverse geocode function
+    function reverseGeocode(latlng, callback) {
+      const geocoder = new google.maps.Geocoder();
+      geocoder.geocode({ location: latlng }, (results, status) => {
+        if (status === 'OK' && results[0]) {
+          callback(results[0].formatted_address);
+        } else {
+          callback(null);
+        }
+      });
+    }
+
+    // Show notification
+    function showNotification(message, type) {
       const notification = document.getElementById("notification");
-      notification.classList.add("error");
-      notification.innerHTML = '<i class="fas fa-times-circle"></i><span>Order dibatalkan</span>';
+      notification.querySelector("#notificationText").textContent = message;
+      notification.className = `notification ${type}`;
       notification.style.display = "flex";
       
-      // Sembunyikan ringkasan order
-      document.getElementById("orderSummary").style.display = "none";
-      
-      // Reset form
-      document.getElementById("fromInput").value = "";
-      document.getElementById("toInput").value = "";
-      
-      // Sembunyikan notifikasi setelah 3 detik
+      // Auto-hide after 5 seconds
       setTimeout(() => {
         notification.style.display = "none";
-      }, 3000);
+      }, 5000);
+    }
+
+    // Show error message
+    function showError(message) {
+      const errorEl = document.getElementById("errorMessage");
+      errorEl.querySelector("#errorDetail").textContent = message;
+      errorEl.style.display = 'block';
+    }
+
+    // Reset order form
+    function resetOrderForm() {
+      document.getElementById("orderSummary").style.display = "none";
+      document.getElementById("fromInput").value = "";
+      document.getElementById("toInput").value = "";
+      document.getElementById("pickupAddress").textContent = "-";
+      document.getElementById("destinationAddress").textContent = "-";
+      
+      if (markerA) markerA.setMap(null);
+      if (markerB) markerB.setMap(null);
+      if (directionsRenderer) directionsRenderer.setMap(null);
+      
+      // Reset order data
+      orderData.from = "";
+      orderData.to = "";
+      orderData.distance = "";
+      orderData.duration = "";
+      orderData.totalPrice = 0;
+      routeCalculated = false;
+    }
+
+    // Send data to App Inventor
+    function sendToAppInventor(data) {
+      const jsonData = JSON.stringify(data);
+      
+      // Android
+      if (window.AppInventor && window.AppInventor.setWebViewString) {
+        window.AppInventor.setWebViewString(jsonData);
+      }
+      // iOS
+      else if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.iosHandler) {
+        window.webkit.messageHandlers.iosHandler.postMessage(jsonData);
+      }
+      // Android alternative
+      else if (window.AndroidInterface) {
+        window.AndroidInterface.receiveData(jsonData);
+      }
+      else {
+        console.log("App Inventor interface not found. Data:", data);
+      }
     }
 
     // Event listeners saat halaman dimuat
     document.addEventListener("DOMContentLoaded", () => {
-      // Simulasi input alamat
-      document.getElementById("fromInput").value = orderData.from;
-      document.getElementById("toInput").value = orderData.to;
+      // Initialize order data from URL parameters
+      initOrderData();
       
-      // Tampilkan ringkasan order setelah input diisi
-      setTimeout(showOrderSummary, 1000);
+      // Initialize Firebase
+      initFirebase();
       
       // Event listener untuk tombol "Cari Driver"
       document.getElementById("findDriverBtn").addEventListener("click", sendOrderToFirebase);
       
       // Event listener untuk tombol "Batalkan"
-      document.getElementById("cancelBtn").addEventListener("click", cancelOrder);
+      document.getElementById("cancelBtn").addEventListener("click", () => {
+        if (firebaseInitialized && orderRef) {
+          // Update status in Firebase
+          orderRef.update({ status: "dibatalkan_penumpang" })
+            .then(() => {
+              showNotification("Order dibatalkan", "error");
+              resetOrderForm();
+            })
+            .catch(error => {
+              showNotification("Gagal membatalkan order: " + error.message, "error");
+            });
+        } else {
+          showNotification("Order dibatalkan", "error");
+          resetOrderForm();
+        }
+      });
       
       // Event listener untuk tombol kembali di layar driver
       document.getElementById("backBtn").addEventListener("click", () => {
@@ -1013,21 +1431,22 @@
   </script>
   
   <script>
-    const key = new URLSearchParams(location.search).get("key");
+    // Load Google Maps API
+    const key = getUrlParam("key");
     if (key) {
       const script = document.createElement("script");
       script.src = `https://maps.googleapis.com/maps/api/js?key=${key}&libraries=places&callback=initMap`;
       script.async = true;
       script.defer = true;
       
-      // Tambahkan penanganan error untuk script loading
+      // Add error handler
       script.onerror = function() {
         showError("Gagal memuat Google Maps API. Pastikan API Key valid dan memiliki akses ke Maps JavaScript API dan Places API.");
       };
       
       document.head.appendChild(script);
       
-      // Timeout untuk memeriksa apakah inisialisasi berhasil
+      // Check if map initialized after 5 seconds
       setTimeout(() => {
         if (!mapInitialized) {
           showError("Gagal memuat Google Maps API. Pastikan API Key valid dan memiliki akses ke Maps JavaScript API dan Places API.");
@@ -1035,7 +1454,7 @@
       }, 5000);
       
     } else {
-      showError("API Key tidak ditemukan di URL. Silakan tambahkan parameter key=API_KEY");
+      showError("API Key Google Maps tidak ditemukan di URL. Silakan tambahkan parameter key=API_KEY");
     }
   </script>
 </body>
