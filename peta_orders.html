@@ -846,6 +846,17 @@
     window.initMap = initMap;
   </script>
   
-  <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&callback=initMap&libraries=places" async defer></script>
+  <script>
+  const key = new URLSearchParams(location.search).get("key");
+  if (key) {
+    const script = document.createElement("script");
+    script.src = `https://maps.googleapis.com/maps/api/js?key=${key}&callback=initMap&libraries=places`;
+    script.async = true;
+    script.defer = true;
+    document.head.appendChild(script);
+  } else {
+    alert("API Key tidak ditemukan di URL.");
+  }
+  </script>
 </body>
 </html>
