@@ -116,6 +116,7 @@
       padding: 10px 15px;
       border-bottom: 1px solid #eee;
       font-size: 14px;
+      line-height: 1.4;
     }
     
     .pac-item:last-child {
@@ -133,6 +134,12 @@
     .pac-item-query {
       font-size: 15px;
       color: #333;
+      font-weight: 500;
+    }
+    
+    .pac-matched {
+      font-weight: bold;
+      color: #4285f4;
     }
 
     .order-summary {
@@ -577,6 +584,131 @@
       color: #ea4335;
       border: 1px solid #ea4335;
     }
+    
+    .driver-details {
+      background: #f8f9fa;
+      border-radius: 16px;
+      padding: 20px;
+      margin: 20px 0;
+      border: 1px solid #eee;
+    }
+    
+    .driver-detail-item {
+      display: flex;
+      margin-bottom: 15px;
+    }
+    
+    .driver-detail-item:last-child {
+      margin-bottom: 0;
+    }
+    
+    .driver-detail-icon {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background: #e8f0fe;
+      color: #4285f4;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: 15px;
+      flex-shrink: 0;
+    }
+    
+    .driver-detail-content {
+      flex: 1;
+    }
+    
+    .driver-detail-label {
+      font-size: 14px;
+      color: #777;
+      margin-bottom: 3px;
+    }
+    
+    .driver-detail-value {
+      font-weight: 600;
+      font-size: 16px;
+      color: #333;
+    }
+    
+    .completion-animation {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(255, 255, 255, 0.95);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 200;
+      display: none;
+    }
+    
+    .completion-check {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      background: #34a853;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 30px;
+      animation: scaleUp 0.5s ease-out;
+    }
+    
+    .completion-check i {
+      color: white;
+      font-size: 60px;
+    }
+    
+    .completion-message {
+      font-size: 28px;
+      font-weight: 700;
+      color: #34a853;
+      text-align: center;
+      margin-bottom: 20px;
+      animation: fadeIn 1s ease-out;
+    }
+    
+    .completion-description {
+      font-size: 18px;
+      color: #555;
+      text-align: center;
+      max-width: 80%;
+      line-height: 1.5;
+      margin-bottom: 30px;
+    }
+    
+    .completion-button {
+      background: #4285f4;
+      color: white;
+      border: none;
+      padding: 15px 30px;
+      border-radius: 30px;
+      font-size: 18px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      box-shadow: 0 4px 15px rgba(66, 133, 244, 0.4);
+    }
+    
+    .completion-button:hover {
+      background: #3367d6;
+      transform: translateY(-2px);
+    }
+    
+    @keyframes scaleUp {
+      0% { transform: scale(0); opacity: 0; }
+      70% { transform: scale(1.1); opacity: 1; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+    
+    @keyframes fadeIn {
+      0% { opacity: 0; transform: translateY(20px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
   </style>
 </head>
 <body>
@@ -687,39 +819,51 @@
         </div>
       </div>
       
+      <div class="driver-details">
+        <div class="driver-detail-item">
+          <div class="driver-detail-icon">
+            <i class="fas fa-id-card"></i>
+          </div>
+          <div class="driver-detail-content">
+            <div class="driver-detail-label">ID Driver</div>
+            <div class="driver-detail-value" id="driverID">-</div>
+          </div>
+        </div>
+        
+        <div class="driver-detail-item">
+          <div class="driver-detail-icon">
+            <i class="fas fa-phone"></i>
+          </div>
+          <div class="driver-detail-content">
+            <div class="driver-detail-label">Nomor Telepon</div>
+            <div class="driver-detail-value" id="driverPhone">-</div>
+          </div>
+        </div>
+        
+        <div class="driver-detail-item">
+          <div class="driver-detail-icon">
+            <i class="fas fa-car"></i>
+          </div>
+          <div class="driver-detail-content">
+            <div class="driver-detail-label">Jenis Kendaraan</div>
+            <div class="driver-detail-value" id="driverVehicle">-</div>
+          </div>
+        </div>
+        
+        <div class="driver-detail-item">
+          <div class="driver-detail-icon">
+            <i class="fas fa-barcode"></i>
+          </div>
+          <div class="driver-detail-content">
+            <div class="driver-detail-label">Nomor Kendaraan</div>
+            <div class="driver-detail-value" id="driverPlate">-</div>
+          </div>
+        </div>
+      </div>
+      
       <div class="status-bar">
         <i class="fas fa-check-circle"></i>
         <span id="driverStatusText">Driver dalam perjalanan menuju lokasi Anda</span>
-      </div>
-      
-      <div class="location-item">
-        <div class="location-icon pickup-icon">
-          <i class="fas fa-map-marker-alt"></i>
-        </div>
-        <div class="location-details">
-          <h3>Lokasi Jemput</h3>
-          <p id="driverPickupAddress">-</p>
-        </div>
-      </div>
-      
-      <div class="location-item">
-        <div class="location-icon destination-icon">
-          <i class="fas fa-flag"></i>
-        </div>
-        <div class="location-details">
-          <h3>Lokasi Tujuan</h3>
-          <p id="driverDestinationAddress">-</p>
-        </div>
-      </div>
-      
-      <div class="info-row">
-        <div class="info-label">Durasi Perjalanan</div>
-        <div class="info-value" id="driverDuration">-</div>
-      </div>
-      
-      <div class="info-row">
-        <div class="info-label">Total Harga</div>
-        <div class="price-value" id="driverPrice">Rp 0</div>
       </div>
       
       <a href="#" class="contact-btn" id="contactDriverBtn">
@@ -736,6 +880,15 @@
       <h3>Error: Autocomplete Tidak Berfungsi</h3>
       <p id="errorDetail">Pastikan API Key memiliki akses ke Google Places API dan Maps JavaScript API.</p>
       <button id="reloadBtn">Coba Lagi</button>
+    </div>
+    
+    <div class="completion-animation" id="completionAnimation">
+      <div class="completion-check">
+        <i class="fas fa-check"></i>
+      </div>
+      <div class="completion-message">Order Berhasil Diselesaikan!</div>
+      <div class="completion-description">Driver telah mengambil paket Anda. Terima kasih telah menggunakan layanan kami.</div>
+      <button class="completion-button" id="completionButton">Kembali ke Beranda</button>
     </div>
   </div>
   
@@ -767,7 +920,9 @@
       driverID: "",
       driverName: "",
       driverPhone: "",
-      kendaraan_driver: ""
+      kendaraan_driver: "",
+      jenis_kendaraan: "",
+      nomor_kendaraan: ""
     };
 
     // Firebase
@@ -959,12 +1114,20 @@
     // Fungsi untuk inisialisasi autocomplete
     function initAutocomplete() {
       try {
+        // Define Indonesia bounds
+        const southWest = new google.maps.LatLng(-11.0, 95.0);
+        const northEast = new google.maps.LatLng(6.0, 141.0);
+        const indonesiaBounds = new google.maps.LatLngBounds(southWest, northEast);
+        
         // Inisialisasi autocomplete untuk input jemput
         autocompleteFrom = new google.maps.places.Autocomplete(
           document.getElementById('fromInput'),
           {
-            types: ['geocode'],
-            fields: ['geometry', 'formatted_address']
+            types: ['geocode'], // Tampilkan alamat lengkap
+            fields: ['geometry', 'formatted_address', 'address_components'],
+            componentRestrictions: { country: 'id' }, // Batasi ke Indonesia
+            bounds: indonesiaBounds, // Batasi wilayah ke Indonesia
+            strictBounds: false
           }
         );
 
@@ -972,8 +1135,11 @@
         autocompleteTo = new google.maps.places.Autocomplete(
           document.getElementById('toInput'),
           {
-            types: ['geocode'],
-            fields: ['geometry', 'formatted_address']
+            types: ['geocode'], // Tampilkan alamat lengkap
+            fields: ['geometry', 'formatted_address', 'address_components'],
+            componentRestrictions: { country: 'id' }, // Batasi ke Indonesia
+            bounds: indonesiaBounds, // Batasi wilayah ke Indonesia
+            strictBounds: false
           }
         );
 
@@ -1050,7 +1216,7 @@
           }
         });
 
-        console.log("Autocomplete initialized successfully");
+        console.log("Autocomplete initialized successfully with Indonesia restrictions");
         
       } catch (error) {
         console.error("Error initializing autocomplete:", error);
@@ -1204,7 +1370,13 @@
           driverData.driverName = data.driverName || "";
           driverData.driverPhone = data.driverPhone || "";
           driverData.kendaraan_driver = data.kendaraan_driver || "";
+          driverData.jenis_kendaraan = data.jenis_kendaraan || "Motor";
+          driverData.nomor_kendaraan = data.nomor_kendaraan || "B 1234 ABC";
           
+          // Show driver notification
+          showNotification("Driver ditemukan! " + driverData.driverName + " sedang menuju lokasi Anda", "success");
+          
+          // Show driver screen
           showDriverScreen();
           break;
           
@@ -1218,12 +1390,8 @@
           break;
           
         case "selesai":
-          statusIndicator.textContent = "Perjalanan Selesai";
-          statusIndicator.className = "status-indicator status-accepted";
-          statusIndicator.style.display = "block";
-          
-          document.getElementById("driverStatusText").textContent = 
-            "Perjalanan telah selesai";
+          // Show completion animation
+          document.getElementById("completionAnimation").style.display = "flex";
           break;
       }
       
@@ -1302,6 +1470,10 @@
     function showDriverScreen() {
       document.getElementById("driverScreen").style.display = "flex";
       document.getElementById("driverName").textContent = driverData.driverName;
+      document.getElementById("driverID").textContent = driverData.driverID;
+      document.getElementById("driverPhone").textContent = driverData.driverPhone;
+      document.getElementById("driverVehicle").textContent = driverData.jenis_kendaraan;
+      document.getElementById("driverPlate").textContent = driverData.nomor_kendaraan;
       document.getElementById("driverVehicleType").textContent = driverData.kendaraan_driver;
       document.getElementById("driverPickupAddress").textContent = orderData.from;
       document.getElementById("driverDestinationAddress").textContent = orderData.to;
@@ -1429,6 +1601,12 @@
       // Event listener untuk tombol reload error
       document.getElementById("reloadBtn").addEventListener("click", () => {
         location.reload();
+      });
+      
+      // Event listener untuk tombol selesai
+      document.getElementById("completionButton").addEventListener("click", () => {
+        // Kirim perintah ke App Inventor untuk kembali ke halaman utama
+        sendToAppInventor({ action: "go_home" });
       });
     });
   </script>
