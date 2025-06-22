@@ -6,7 +6,6 @@
     <title>Pesan Driver - Go-MotorCycle</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD7UQn3Bq7Y9t0Qj7Q7w9Y8J7Z8Z8Z8Z8Z&libraries=places,geometry,directions"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * {
@@ -90,6 +89,11 @@
             border-radius: 10px;
             overflow: hidden;
             box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            background: #f0f0f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
         }
         
         #map {
@@ -238,6 +242,12 @@
             transform: translateY(0);
         }
         
+        .btn:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
         .loading {
             text-align: center;
             padding: 20px;
@@ -310,6 +320,18 @@
         .distance-label {
             font-size: 14px;
             color: #666;
+        }
+        
+        .map-placeholder {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+        }
+        
+        .map-placeholder i {
+            font-size: 48px;
+            margin-bottom: 15px;
+            color: #1a2a6c;
         }
         
         @media (max-width: 768px) {
@@ -412,7 +434,7 @@
                     </div>
                 </div>
                 
-                <button id="orderBtn" class="btn">
+                <button id="orderBtn" class="btn" disabled>
                     <i class="fas fa-search"></i> Cari Driver Sekarang
                 </button>
                 
@@ -424,7 +446,12 @@
             </div>
             
             <div class="map-container">
-                <div id="map"></div>
+                <div id="map">
+                    <div class="map-placeholder">
+                        <i class="fas fa-map-marked-alt"></i>
+                        <p>Memuat peta...</p>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -437,6 +464,7 @@
         let hargaPerKm = 0;
         let distanceInKm = 0;
         let fromLatLng, toLatLng;
+        let googleMapsApiKey = '';
         
         // Fungsi untuk mendapatkan parameter dari URL
         function getUrlParams() {
@@ -450,6 +478,29 @@
             }
             
             return params;
+        }
+        
+        // Fungsi untuk memuat Google Maps API
+        function loadGoogleMapsApi(apiKey) {
+            return new Promise((resolve, reject) => {
+                // Cek apakah script sudah dimuat
+                if (window.google && window.google.maps) {
+                    resolve();
+                    return;
+                }
+                
+                // Buat script untuk memuat Google Maps API
+                const script = document.createElement('script');
+                script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places,geometry,directions&callback=initMap`;
+                script.async = true;
+                script.defer = true;
+                script.onerror = reject;
+                
+                // Tambahkan callback untuk resolve
+                window.initMap = resolve;
+                
+                document.head.appendChild(script);
+            });
         }
         
         // Fungsi untuk menginisialisasi peta
@@ -522,6 +573,9 @@
             if (params.phone) {
                 document.getElementById('userPhone').textContent = params.phone;
             }
+            
+            // Aktifkan tombol pesan
+            document.getElementById('orderBtn').disabled = false;
             
             // Jika ada alamat jemput dan tujuan, hitung rute
             if (params.from && params.to) {
@@ -666,12 +720,30 @@
         }
         
         // Event saat halaman dimuat
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', async function() {
             // Kirim status bahwa halaman dimuat
             window.AppInventor.setWebViewString("LOADED:Halaman pemesanan telah dimuat");
             
             // Dapatkan parameter dari URL
             const params = getUrlParams();
+            
+            // Periksa API Key Google Maps
+            googleMapsApiKey = params.googleMapsApiKey;
+            if (!googleMapsApiKey) {
+                showMessage('API Key Google Maps tidak ditemukan. Mohon periksa URL.', true);
+                return;
+            }
+            
+            // Muat Google Maps API
+            try {
+                showMessage('Memuat Google Maps API...');
+                await loadGoogleMapsApi(googleMapsApiKey);
+                showMessage('Google Maps API berhasil dimuat', false);
+            } catch (error) {
+                showMessage('Gagal memuat Google Maps API: ' + error.message, true);
+                window.AppInventor.setWebViewString("ERROR:map_api|Gagal memuat Google Maps API");
+                return;
+            }
             
             // Setup event listener untuk opsi kendaraan
             document.querySelectorAll('.vehicle-option').forEach(option => {
@@ -758,9 +830,6 @@
                 }
             });
         });
-        
-        // Panggil fungsi initMap setelah Google Maps API dimuat
-        window.initMap = initMap;
     </script>
 </body>
 </html>
