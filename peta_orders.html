@@ -810,14 +810,18 @@
       
       if (fromParam) {
         const [lat, lng] = fromParam.split(",").map(Number);
-        if (!isNaN(lat) orderData.from_lat = lat;
-        if (!isNaN(lng)) orderData.from_lng = lng;
+        if (!isNaN(lat) && !isNaN(lng)) {
+          orderData.from_lat = lat;
+          orderData.from_lng = lng;
+        }
       }
       
       if (toParam) {
         const [lat, lng] = toParam.split(",").map(Number);
-        if (!isNaN(lat)) orderData.to_lat = lat;
-        if (!isNaN(lng)) orderData.to_lng = lng;
+        if (!isNaN(lat) && !isNaN(lng)) {
+          orderData.to_lat = lat;
+          orderData.to_lng = lng;
+        }
       }
       
       // Set vehicle type display
@@ -837,15 +841,12 @@
     // Fungsi inisialisasi peta
     function initMap() {
       try {
-        // Get Google Maps API key
-        const key = getUrlParam("key");
-        if (!key) {
-          showError("API Key Google Maps tidak ditemukan di URL.");
-          return;
-        }
-        
         // Initialize map
-        const lokasiA = { lat: orderData.from_lat, lng: orderData.from_lng };
+        const lokasiA = { 
+          lat: orderData.from_lat || -6.2088, 
+          lng: orderData.from_lng || 106.8456 
+        };
+        
         map = new google.maps.Map(document.getElementById("map"), {
           zoom: 15,
           center: lokasiA,
@@ -893,6 +894,7 @@
         
         // Add markers if locations are provided
         if (orderData.from_lat && orderData.from_lng) {
+          const lokasiA = { lat: orderData.from_lat, lng: orderData.from_lng };
           markerA = new google.maps.Marker({
             position: lokasiA,
             map: map,
@@ -933,6 +935,10 @@
           });
         }
         
+        // Initialize autocomplete
+        initAutocomplete();
+        mapInitialized = true;
+        
         // Calculate route if both locations are provided
         if (orderData.from_lat && orderData.from_lng && 
             orderData.to_lat && orderData.to_lng) {
@@ -943,10 +949,6 @@
             showOrderSummary();
           }
         }
-        
-        // Initialize autocomplete
-        initAutocomplete();
-        mapInitialized = true;
         
       } catch (error) {
         console.error("Error initializing map:", error);
@@ -1310,6 +1312,7 @@
       const contactBtn = document.getElementById("contactDriverBtn");
       if (driverData.driverPhone) {
         contactBtn.href = `tel:${driverData.driverPhone}`;
+        contactBtn.style.display = "block";
       } else {
         contactBtn.style.display = "none";
       }
@@ -1432,7 +1435,7 @@
   
   <script>
     // Load Google Maps API
-    const key = getUrlParam("key");
+    const key = new URLSearchParams(window.location.search).get("key");
     if (key) {
       const script = document.createElement("script");
       script.src = `https://maps.googleapis.com/maps/api/js?key=${key}&libraries=places&callback=initMap`;
