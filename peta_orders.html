@@ -103,6 +103,37 @@
       box-shadow: 0 0 0 2px rgba(66, 133, 244, 0.2);
     }
 
+    .pac-container {
+      z-index: 10000 !important;
+      border-radius: 12px !important;
+      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15) !important;
+      border: none !important;
+      margin-top: 5px;
+    }
+    
+    .pac-item {
+      padding: 10px 15px;
+      border-bottom: 1px solid #eee;
+      font-size: 14px;
+    }
+    
+    .pac-item:last-child {
+      border-bottom: none;
+    }
+    
+    .pac-item:hover {
+      background-color: #f5f7fa;
+    }
+    
+    .pac-icon {
+      display: none;
+    }
+    
+    .pac-item-query {
+      font-size: 15px;
+      color: #333;
+    }
+
     .order-summary {
       background: white;
       border-radius: 20px 20px 0 0;
@@ -472,6 +503,49 @@
     .error i {
       color: #ea4335;
     }
+    
+    .error-message {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(255, 255, 255, 0.95);
+      padding: 20px 30px;
+      border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+      text-align: center;
+      z-index: 1000;
+      display: none;
+      max-width: 90%;
+      width: 320px;
+    }
+    
+    .error-message h3 {
+      color: #ea4335;
+      margin-bottom: 15px;
+      font-size: 18px;
+    }
+    
+    .error-message p {
+      color: #555;
+      margin-bottom: 20px;
+      line-height: 1.5;
+    }
+    
+    .error-message button {
+      background: #4285f4;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 30px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .error-message button:hover {
+      background: #3367d6;
+    }
   </style>
 </head>
 <body>
@@ -624,6 +698,12 @@
       <div class="spinner"></div>
       <p>Memproses...</p>
     </div>
+    
+    <div class="error-message" id="errorMessage">
+      <h3>Error: Autocomplete Tidak Berfungsi</h3>
+      <p>Pastikan API Key memiliki akses ke Google Places API dan Maps JavaScript API.</p>
+      <button id="reloadBtn">Coba Lagi</button>
+    </div>
   </div>
   
   <div class="notification" id="notification">
@@ -657,89 +737,173 @@
       phone: "08123456789"
     };
 
+    // Variabel global untuk autocomplete
+    let autocompleteFrom, autocompleteTo;
+    let mapInitialized = false;
+
     // Fungsi inisialisasi peta
     function initMap() {
-      const lokasiA = { lat: orderData.from_lat, lng: orderData.from_lng };
-      const lokasiB = { lat: orderData.to_lat, lng: orderData.to_lng };
-      
-      // Buat peta
-      const map = new google.maps.Map(document.getElementById("map"), {
-        zoom: 15,
-        center: lokasiA,
-        mapTypeControl: false,
-        streetViewControl: false,
-        fullscreenControl: false,
-        styles: [
-          { elementType: "geometry", stylers: [{ color: "#f5f5f5" }] },
-          { elementType: "labels.text.stroke", stylers: [{ color: "#f5f5f5" }] },
-          { elementType: "labels.text.fill", stylers: [{ color: "#333333" }] },
-          {
-            featureType: "road",
-            elementType: "geometry",
-            stylers: [{ color: "#ffffff" }]
-          },
-          {
-            featureType: "road",
-            elementType: "labels.text.fill",
-            stylers: [{ color: "#5a5a5a" }]
-          },
-          {
-            featureType: "poi",
-            elementType: "geometry",
-            stylers: [{ color: "#f5f5f5" }]
-          },
-          {
-            featureType: "water",
-            elementType: "geometry",
-            stylers: [{ color: "#c9e7ff" }]
+      try {
+        const lokasiA = { lat: orderData.from_lat, lng: orderData.from_lng };
+        const lokasiB = { lat: orderData.to_lat, lng: orderData.to_lng };
+        
+        // Buat peta
+        const map = new google.maps.Map(document.getElementById("map"), {
+          zoom: 15,
+          center: lokasiA,
+          mapTypeControl: false,
+          streetViewControl: false,
+          fullscreenControl: false,
+          styles: [
+            { elementType: "geometry", stylers: [{ color: "#f5f5f5" }] },
+            { elementType: "labels.text.stroke", stylers: [{ color: "#f5f5f5" }] },
+            { elementType: "labels.text.fill", stylers: [{ color: "#333333" }] },
+            {
+              featureType: "road",
+              elementType: "geometry",
+              stylers: [{ color: "#ffffff" }]
+            },
+            {
+              featureType: "road",
+              elementType: "labels.text.fill",
+              stylers: [{ color: "#5a5a5a" }]
+            },
+            {
+              featureType: "poi",
+              elementType: "geometry",
+              stylers: [{ color: "#f5f5f5" }]
+            },
+            {
+              featureType: "water",
+              elementType: "geometry",
+              stylers: [{ color: "#c9e7ff" }]
+            }
+          ]
+        });
+        
+        // Tambahkan marker lokasi A
+        new google.maps.Marker({
+          position: lokasiA,
+          map: map,
+          icon: {
+            url: "https://cdn-icons-png.flaticon.com/512/684/684908.png",
+            scaledSize: new google.maps.Size(40, 40)
           }
-        ]
-      });
-      
-      // Tambahkan marker lokasi A
-      new google.maps.Marker({
-        position: lokasiA,
-        map: map,
-        icon: {
-          url: "https://cdn-icons-png.flaticon.com/512/684/684908.png",
-          scaledSize: new google.maps.Size(40, 40)
-        }
-      });
-      
-      // Tambahkan marker lokasi B
-      new google.maps.Marker({
-        position: lokasiB,
-        map: map,
-        icon: {
-          url: "https://cdn-icons-png.flaticon.com/512/447/447031.png",
-          scaledSize: new google.maps.Size(40, 40)
-        }
-      });
-      
-      // Tambahkan rute
-      const directionsService = new google.maps.DirectionsService();
-      const directionsRenderer = new google.maps.DirectionsRenderer({
-        map: map,
-        suppressMarkers: true,
-        polylineOptions: {
-          strokeColor: "#4285f4",
-          strokeOpacity: 0.8,
-          strokeWeight: 5
-        }
-      });
-      
-      directionsService.route(
-        {
-          origin: lokasiA,
-          destination: lokasiB,
-          travelMode: google.maps.TravelMode.DRIVING
-        },
-        (response, status) => {
-          if (status === "OK") {
-            directionsRenderer.setDirections(response);
+        });
+        
+        // Tambahkan marker lokasi B
+        new google.maps.Marker({
+          position: lokasiB,
+          map: map,
+          icon: {
+            url: "https://cdn-icons-png.flaticon.com/512/447/447031.png",
+            scaledSize: new google.maps.Size(40, 40)
           }
-        }
-      );
+        });
+        
+        // Tambahkan rute
+        const directionsService = new google.maps.DirectionsService();
+        const directionsRenderer = new google.maps.DirectionsRenderer({
+          map: map,
+          suppressMarkers: true,
+          polylineOptions: {
+            strokeColor: "#4285f4",
+            strokeOpacity: 0.8,
+            strokeWeight: 5
+          }
+        });
+        
+        directionsService.route(
+          {
+            origin: lokasiA,
+            destination: lokasiB,
+            travelMode: google.maps.TravelMode.DRIVING
+          },
+          (response, status) => {
+            if (status === "OK") {
+              directionsRenderer.setDirections(response);
+            }
+          }
+        );
+        
+        // Inisialisasi autocomplete setelah peta siap
+        initAutocomplete();
+        mapInitialized = true;
+        
+      } catch (error) {
+        console.error("Error initializing map:", error);
+        showError("Terjadi kesalahan saat memuat peta. Pastikan API Key valid dan memiliki akses ke Maps JavaScript API.");
+      }
+    }
+
+    // Fungsi untuk inisialisasi autocomplete
+    function initAutocomplete() {
+      try {
+        // Inisialisasi autocomplete untuk input jemput
+        autocompleteFrom = new google.maps.places.Autocomplete(
+          document.getElementById('fromInput'),
+          {
+            types: ['geocode'],
+            fields: ['geometry', 'formatted_address']
+          }
+        );
+
+        // Inisialisasi autocomplete untuk input tujuan
+        autocompleteTo = new google.maps.places.Autocomplete(
+          document.getElementById('toInput'),
+          {
+            types: ['geocode'],
+            fields: ['geometry', 'formatted_address']
+          }
+        );
+
+        // Tambahkan event listener untuk jemput
+        autocompleteFrom.addListener('place_changed', function() {
+          const place = autocompleteFrom.getPlace();
+          if (!place.geometry) {
+            console.error("Place details not available for input: 'fromInput'");
+            return;
+          }
+          // Update data order
+          orderData.from = place.formatted_address;
+          orderData.from_lat = place.geometry.location.lat();
+          orderData.from_lng = place.geometry.location.lng();
+          // Tampilkan ringkasan jika kedua alamat sudah diisi
+          if (orderData.to) {
+            showOrderSummary();
+          }
+        });
+
+        // Tambahkan event listener untuk tujuan
+        autocompleteTo.addListener('place_changed', function() {
+          const place = autocompleteTo.getPlace();
+          if (!place.geometry) {
+            console.error("Place details not available for input: 'toInput'");
+            return;
+          }
+          // Update data order
+          orderData.to = place.formatted_address;
+          orderData.to_lat = place.geometry.location.lat();
+          orderData.to_lng = place.geometry.location.lng();
+          // Tampilkan ringkasan jika kedua alamat sudah diisi
+          if (orderData.from) {
+            showOrderSummary();
+          }
+        });
+
+        console.log("Autocomplete initialized successfully");
+        
+      } catch (error) {
+        console.error("Error initializing autocomplete:", error);
+        showError("Terjadi kesalahan saat memuat fitur pencarian alamat. Pastikan API Key memiliki akses ke Google Places API.");
+      }
+    }
+
+    // Fungsi untuk menampilkan pesan error
+    function showError(message) {
+      const errorEl = document.getElementById('errorMessage');
+      errorEl.querySelector('p').textContent = message;
+      errorEl.style.display = 'block';
     }
 
     // Fungsi untuk menampilkan ringkasan order
@@ -840,23 +1004,39 @@
       document.getElementById("backBtn").addEventListener("click", () => {
         document.getElementById("driverScreen").style.display = "none";
       });
+      
+      // Event listener untuk tombol reload error
+      document.getElementById("reloadBtn").addEventListener("click", () => {
+        location.reload();
+      });
     });
-
-    // Inisialisasi Google Maps
-    window.initMap = initMap;
   </script>
   
   <script>
-  const key = new URLSearchParams(location.search).get("key");
-  if (key) {
-    const script = document.createElement("script");
-    script.src = `https://maps.googleapis.com/maps/api/js?key=${key}&callback=initMap&libraries=places`;
-    script.async = true;
-    script.defer = true;
-    document.head.appendChild(script);
-  } else {
-    alert("API Key tidak ditemukan di URL.");
-  }
+    const key = new URLSearchParams(location.search).get("key");
+    if (key) {
+      const script = document.createElement("script");
+      script.src = `https://maps.googleapis.com/maps/api/js?key=${key}&libraries=places&callback=initMap`;
+      script.async = true;
+      script.defer = true;
+      
+      // Tambahkan penanganan error untuk script loading
+      script.onerror = function() {
+        showError("Gagal memuat Google Maps API. Pastikan API Key valid dan memiliki akses ke Maps JavaScript API dan Places API.");
+      };
+      
+      document.head.appendChild(script);
+      
+      // Timeout untuk memeriksa apakah inisialisasi berhasil
+      setTimeout(() => {
+        if (!mapInitialized) {
+          showError("Gagal memuat Google Maps API. Pastikan API Key valid dan memiliki akses ke Maps JavaScript API dan Places API.");
+        }
+      }, 5000);
+      
+    } else {
+      showError("API Key tidak ditemukan di URL. Silakan tambahkan parameter key=API_KEY");
+    }
   </script>
 </body>
 </html>
