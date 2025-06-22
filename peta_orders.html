@@ -2,244 +2,35 @@
 <html>
 <head>
   <meta charset="utf-8" />
-  <title>Pesan Driver - Go-MotorCycle</title>
+  <title>Rute Ojek</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
-    * {
+    html, body, #map {
+      height: 100%;
       margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      font-family: sans-serif;
     }
-    
-    body {
-      background: linear-gradient(135deg, #1a2a6c, #b21f1f);
-      height: 100vh;
-      overflow: hidden;
-      color: #333;
-    }
-    
-    #map {
-      height: 60vh;
-      width: 100%;
-    }
-    
     .panel {
       position: absolute;
       top: 10px;
       left: 10px;
-      right: 10px;
-      background: rgba(255, 255, 255, 0.95);
-      padding: 15px;
-      z-index: 5;
-      border-radius: 15px;
-      box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-    
-    .input-group {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-    
-    .input-group i {
-      color: #1a2a6c;
-      font-size: 18px;
-      min-width: 24px;
-      text-align: center;
-    }
-    
-    input {
-      flex: 1;
-      padding: 12px 15px;
-      font-size: 16px;
-      border: 2px solid #ddd;
-      border-radius: 10px;
-      transition: border-color 0.3s;
-    }
-    
-    input:focus {
-      border-color: #1a2a6c;
-      outline: none;
-      box-shadow: 0 0 0 2px rgba(26, 42, 108, 0.2);
-    }
-    
-    .info-container {
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      background: white;
-      border-radius: 20px 20px 0 0;
-      box-shadow: 0 -5px 15px rgba(0,0,0,0.2);
-      padding: 20px;
-      z-index: 10;
-      transform: translateY(calc(100% - 70px));
-      transition: transform 0.3s ease;
-    }
-    
-    .info-container.expanded {
-      transform: translateY(0);
-    }
-    
-    .handle {
-      width: 50px;
-      height: 5px;
-      background: #ddd;
-      border-radius: 3px;
-      margin: 0 auto 15px;
-      cursor: pointer;
-    }
-    
-    .info-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 15px;
-    }
-    
-    .info-header h2 {
-      color: #1a2a6c;
-      font-size: 20px;
-    }
-    
-    .vehicle-selector {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 15px;
-      overflow-x: auto;
-      padding-bottom: 5px;
-    }
-    
-    .vehicle-option {
-      flex: 0 0 auto;
-      width: 80px;
-      text-align: center;
+      background: rgba(255, 255, 255, 0.9);
       padding: 10px;
-      border: 2px solid #ddd;
-      border-radius: 10px;
-      cursor: pointer;
-      transition: all 0.3s;
+      z-index: 5;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+      width: calc(100% - 20px);
+      max-width: 100%;
+      box-sizing: border-box;
     }
-    
-    .vehicle-option.selected {
-      border-color: #1a2a6c;
-      background: #e6eeff;
-      box-shadow: 0 3px 10px rgba(26, 42, 108, 0.1);
-    }
-    
-    .vehicle-option i {
-      font-size: 24px;
-      color: #1a2a6c;
-      margin-bottom: 5px;
-    }
-    
-    .price-details {
-      background: #f0f5ff;
-      border-radius: 15px;
-      padding: 15px;
-      margin-bottom: 20px;
-      border-left: 4px solid #1a2a6c;
-    }
-    
-    .price-row {
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 10px;
-      padding-bottom: 10px;
-      border-bottom: 1px dashed #ccc;
-    }
-    
-    .price-row.total {
-      font-weight: bold;
-      font-size: 18px;
-      color: #1a2a6c;
-      border-bottom: none;
-      margin-top: 10px;
-      padding-top: 10px;
-      border-top: 1px dashed #ccc;
-    }
-    
-    .btn {
+    input {
       width: 100%;
-      padding: 16px;
-      background: linear-gradient(to right, #1a2a6c, #b21f1f);
-      border: none;
-      border-radius: 12px;
-      color: white;
-      font-size: 18px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.3s;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-      box-shadow: 0 4px 10px rgba(26, 42, 108, 0.3);
+      margin-bottom: 8px;
+      padding: 10px;
+      font-size: 16px;
+      box-sizing: border-box;
     }
-    
-    .btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 15px rgba(26, 42, 108, 0.4);
-    }
-    
-    .btn:active {
-      transform: translateY(0);
-    }
-    
-    .btn:disabled {
-      background: #cccccc;
-      cursor: not-allowed;
-      transform: none;
-    }
-    
-    .loading {
-      text-align: center;
-      padding: 20px;
-      display: none;
-    }
-    
-    .loading-spinner {
-      border: 4px solid rgba(0, 0, 0, 0.1);
-      border-left-color: #1a2a6c;
-      border-radius: 50%;
-      width: 30px;
-      height: 30px;
-      animation: spin 1s linear infinite;
-      margin: 0 auto 15px;
-    }
-    
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-    
-    .message {
-      text-align: center;
-      padding: 15px;
-      margin: 15px 0;
-      border-radius: 10px;
-      font-weight: 500;
-      display: none;
-    }
-    
-    .success {
-      background-color: #d4edda;
-      color: #155724;
-      display: block;
-      border-left: 4px solid #28a745;
-    }
-    
-    .error {
-      background-color: #f8d7da;
-      color: #721c24;
-      display: block;
-      border-left: 4px solid #dc3545;
-    }
-    
+
     .radar {
       position: absolute;
       top: 50%;
@@ -248,9 +39,7 @@
       height: 200px;
       transform: translate(-50%, -50%);
       z-index: 999;
-      display: none;
     }
-    
     .radar::before, .radar::after {
       content: "";
       position: absolute;
@@ -260,11 +49,9 @@
       border-radius: 50%;
       animation: radarPulse 2s infinite ease-out;
     }
-    
     .radar::after {
       animation-delay: 1s;
     }
-    
     .radar span {
       position: absolute;
       top: 50%;
@@ -277,580 +64,290 @@
       border-radius: 8px;
       box-shadow: 0 0 8px rgba(0,0,0,0.1);
     }
-    
     @keyframes radarPulse {
       0% { transform: scale(0.4); opacity: 1; }
       100% { transform: scale(1.5); opacity: 0; }
-    }
-    
-    /* Menyembunyikan pesan error Google Maps */
-    .gm-err-container, .gm-err-message {
-      display: none !important;
-    }
-    
-    .pac-container {
-      z-index: 10000 !important;
-      border-radius: 10px !important;
-      box-shadow: 0 5px 15px rgba(0,0,0,0.3) !important;
-      border: none !important;
-      margin-top: 5px;
-    }
-    
-    .pac-item {
-      padding: 10px 15px !important;
-      border-bottom: 1px solid #eee !important;
-      font-size: 15px;
-    }
-    
-    .pac-item:hover {
-      background-color: #f5f5f5 !important;
-    }
-    
-    .pac-icon {
-      display: none !important;
-    }
-    
-    .pac-item-query {
-      font-size: 15px !important;
-      color: #1a2a6c !important;
-      font-weight: 500 !important;
-    }
-    
-    @media (min-width: 768px) {
-      .panel {
-        max-width: 500px;
-        margin: 0 auto;
-        left: 50%;
-        transform: translateX(-50%);
-      }
-      
-      .info-container {
-        max-width: 500px;
-        margin: 0 auto;
-        left: 50%;
-        transform: translate(-50%, calc(100% - 70px));
-      }
-      
-      .info-container.expanded {
-        transform: translate(-50%, 0);
-      }
     }
   </style>
 </head>
 <body>
   <div class="panel">
-    <div class="input-group">
-      <i class="fas fa-location-arrow"></i>
-      <input id="fromInput" type="text" placeholder="Lokasi penjemputan" />
-    </div>
-    <div class="input-group">
-      <i class="fas fa-flag-checkered"></i>
-      <input id="toInput" type="text" placeholder="Lokasi tujuan" />
-    </div>
+    <input id="fromInput" type="text" placeholder="Titik Awal" />
+    <input id="toInput" type="text" placeholder="Titik Tujuan" />
   </div>
-  
   <div id="map"></div>
-  
-  <div class="info-container" id="infoContainer">
-    <div class="handle" onclick="toggleInfoContainer()"></div>
-    <div class="info-header">
-      <h2>Detail Perjalanan</h2>
-      <div class="distance-info">
-        <span id="distance">0 km</span> • 
-        <span id="duration">0 min</span>
-      </div>
-    </div>
-    
-    <div class="vehicle-selector" id="vehicleSelector">
-      <!-- Vehicle options will be added dynamically -->
-    </div>
-    
-    <div class="price-details">
-      <div class="price-row">
-        <span>Jarak perjalanan:</span>
-        <span id="distanceValue">0 km</span>
-      </div>
-      <div class="price-row total">
-        <span>Total Biaya:</span>
-        <span id="totalPrice">Rp 0</span>
-      </div>
-    </div>
-    
-    <button id="orderBtn" class="btn" disabled>
-      <i class="fas fa-motorcycle"></i> Pesan Sekarang
-    </button>
-    
-    <div id="message" class="message"></div>
-  </div>
-  
-  <div class="radar" id="radar">
-    <span>Mencari driver...</span>
+  <div class="radar" id="radar" style="display:none;">
+    <span>......</span>
   </div>
 
-  <!-- Firebase -->
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-  
+  <!-- JS & Maps -->
   <script>
-    // Variabel global
     let map, directionsService, directionsRenderer;
-    let autocompleteFrom, autocompleteTo;
-    let markerA, markerB;
-    let selectedVehicle = 'motor';
-    let hargaPerKm = 0;
-    let distanceInKm = 0;
-    let fromLatLng, toLatLng;
-    let googleMapsApiKey = '';
-    let userID, userName, phone, firebaseUrl;
-    
-    // Icon URLs untuk berbagai jenis kendaraan
+    let markerA, markerB, circleB;
+    let radarInterval;
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const vehicle = urlParams.get("vehicle") || "motor";
+    const fromParam = urlParams.get("from");
+    const toParam = urlParams.get("to");
+    const hargaPerKm = parseFloat(urlParams.get("harga")) || 0;
+
     const iconUrls = {
       motor: 'https://cdn-icons-png.flaticon.com/128/5811/5811823.png',
       mobil: 'https://cdn-icons-png.flaticon.com/128/12689/12689302.png',
       kurir: 'https://cdn-icons-png.flaticon.com/128/9561/9561688.png',
       bentor: 'https://cdn-icons-png.flaticon.com/128/7890/7890227.png',
-      pickup: 'https://cdn-icons-png.flaticon.com/512/9017/9017605.png'
+      pickup: 'https://cdn-icons-png.flaticon.com/512/9017/9017605.png',
+      pickup_scooter: 'https://cdn-icons-png.flaticon.com/128/3177/3177363.png'
     };
-    
-    // Fungsi untuk mendapatkan parameter dari URL
-    function getUrlParams() {
-      const params = {};
-      const queryString = window.location.search.substring(1);
-      const regex = /([^&=]+)=([^&]*)/g;
-      let match;
-      
-      while ((match = regex.exec(queryString)) !== null) {
-        params[decodeURIComponent(match[1])] = decodeURIComponent(match[2]);
-      }
-      
-      return params;
-    }
-    
-    // Fungsi untuk menampilkan/menyembunyikan info container
-    function toggleInfoContainer() {
-      const container = document.getElementById('infoContainer');
-      container.classList.toggle('expanded');
-    }
-    
-    // Fungsi untuk menampilkan pesan
-    function showMessage(message, isError = false) {
-      const messageElement = document.getElementById('message');
-      messageElement.textContent = message;
-      messageElement.className = isError ? 'message error' : 'message success';
-      messageElement.style.display = 'block';
-      
-      // Sembunyikan pesan setelah 5 detik
-      setTimeout(() => {
-        messageElement.style.display = 'none';
-      }, 5000);
-    }
-    
-    // Fungsi untuk menampilkan loading
-    function showLoading(show) {
-      document.getElementById('radar').style.display = show ? 'flex' : 'none';
-    }
-    
-    // Fungsi untuk mengirim data ke App Inventor
-    function sendToAppInventor(data) {
-      if (window.AppInventor && window.AppInventor.setWebViewString) {
-        window.AppInventor.setWebViewString(data);
-      }
-    }
-    
-    // Fungsi untuk menginisialisasi peta
-    function initMap() {
-      const params = getUrlParams();
-      
-      // Dapatkan parameter penting
-      googleMapsApiKey = params.googleMapsApiKey;
-      userID = params.userID;
-      userName = params.userName;
-      phone = params.phone;
-      firebaseUrl = params.firebaseUrl;
-      
-      if (!googleMapsApiKey) {
-        showMessage('API Key Google Maps tidak ditemukan. Mohon periksa URL.', true);
-        showRadar('API Key tidak ditemukan');
-        return;
-      }
-      
-      // Inisialisasi peta
-      const initialLocation = {
-        lat: parseFloat(params.from_lat || -6.2088),
-        lng: parseFloat(params.from_lng || 106.8456)
-      };
-      
-      map = new google.maps.Map(document.getElementById('map'), {
-        center: initialLocation, // Gunakan lokasi pengorder sebagai pusat
-        zoom: 16, // Zoom lebih dekat
-        mapTypeControl: false,
-        streetViewControl: false,
-        fullscreenControl: true,
-        styles: [
-          {
-            featureType: "poi",
-            elementType: "labels",
-            stylers: [{ visibility: "off" }]
-          }
-        ]
-      });
-      
-      // Inisialisasi layanan arah
-      directionsService = new google.maps.DirectionsService();
-      directionsRenderer = new google.maps.DirectionsRenderer({
-        map: map,
-        suppressMarkers: true,
-        polylineOptions: {
-          strokeColor: '#1a2a6c',
-          strokeOpacity: 0.8,
-          strokeWeight: 5
-        }
-      });
-      
-      // Inisialisasi autocomplete dengan hasil lebih detail
-      autocompleteFrom = new google.maps.places.Autocomplete(
-        document.getElementById('fromInput'), 
-        { 
-          types: ['geocode', 'establishment', 'address'], // Lebih banyak jenis hasil
-          componentRestrictions: { country: 'id' }, // Batasi ke Indonesia
-          fields: ['address_components', 'geometry', 'formatted_address']
-        }
-      );
-      
-      autocompleteTo = new google.maps.places.Autocomplete(
-        document.getElementById('toInput'), 
-        { 
-          types: ['geocode', 'establishment', 'address'], // Lebih banyak jenis hasil
-          componentRestrictions: { country: 'id' }, // Batasi ke Indonesia
-          fields: ['address_components', 'geometry', 'formatted_address']
-        }
-      );
-      
-      // Set nilai awal dari parameter URL
-      if (params.from) {
-        document.getElementById('fromInput').value = params.from;
-      }
-      
-      if (params.to) {
-        document.getElementById('toInput').value = params.to;
-      }
-      
-      if (params.vehicle) {
-        selectedVehicle = params.vehicle;
-        selectVehicle(selectedVehicle);
-      }
-      
-      if (params.hargaPerKm) {
-        hargaPerKm = parseInt(params.hargaPerKm);
-      }
-      
-      // Tambahkan event listener untuk autocomplete
-      autocompleteFrom.addListener('place_changed', function() {
-        const place = autocompleteFrom.getPlace();
-        if (place.geometry) {
-          fromLatLng = place.geometry.location;
-          if (markerA) markerA.setMap(null);
-          createMarkerA(fromLatLng);
-          if (markerB) calculateAndDisplayRoute();
-        }
-      });
-      
-      autocompleteTo.addListener('place_changed', function() {
-        const place = autocompleteTo.getPlace();
-        if (place.geometry) {
-          toLatLng = place.geometry.location;
-          if (markerB) markerB.setMap(null);
-          createMarkerB(toLatLng);
-          if (markerA) calculateAndDisplayRoute();
-        }
-      });
-      
-      // Jika ada alamat jemput dan tujuan, hitung rute
-      if (params.from && params.to) {
-        setTimeout(() => {
-          calculateAndDisplayRoute();
-        }, 1000);
-      }
-      
-      // Buat marker awal jika ada lokasi pengorder
-      if (params.from_lat && params.from_lng) {
-        fromLatLng = new google.maps.LatLng(
-          parseFloat(params.from_lat),
-          parseFloat(params.from_lng)
-        );
-        createMarkerA(fromLatLng);
-      }
-      
-      // Setup event listener untuk tombol pesan
-      document.getElementById('orderBtn').addEventListener('click', function() {
-        createOrder();
-      });
-    }
-    
-    // Fungsi untuk membuat marker A
-    function createMarkerA(position) {
-      markerA = new google.maps.Marker({
-        position: position,
-        map: map,
-        title: 'Lokasi Penjemputan',
-        icon: {
-          url: iconUrls[selectedVehicle] || iconUrls.motor,
-          scaledSize: new google.maps.Size(40, 40)
-        }
-      });
-      map.panTo(position);
-    }
-    
-    // Fungsi untuk membuat marker B
-    function createMarkerB(position) {
-      markerB = new google.maps.Marker({
-        position: position,
-        map: map,
-        title: 'Lokasi Tujuan',
-        icon: {
-          url: "https://cdn-icons-png.flaticon.com/512/684/684908.png",
-          scaledSize: new google.maps.Size(40, 40)
-        }
-      });
-    }
-    
-    // Fungsi untuk menghitung dan menampilkan rute
-    function calculateAndDisplayRoute() {
-      if (!fromLatLng || !toLatLng) return;
-      
-      showRadar('Menghitung rute...');
-      
-      // Hitung rute
-      directionsService.route(
-        {
-          origin: fromLatLng,
-          destination: toLatLng,
-          travelMode: google.maps.TravelMode.DRIVING,
-          provideRouteAlternatives: false
-        },
-        (response, status) => {
-          hideRadar();
-          if (status === 'OK') {
-            directionsRenderer.setDirections(response);
-            
-            // Dapatkan jarak dan durasi
-            const route = response.routes[0];
-            let totalDistance = 0;
-            let totalDuration = 0;
-            
-            route.legs.forEach(leg => {
-              totalDistance += leg.distance.value;
-              totalDuration += leg.duration.value;
-            });
-            
-            // Konversi ke km dan menit
-            distanceInKm = totalDistance / 1000;
-            const durationMinutes = Math.round(totalDuration / 60);
-            
-            // Update UI
-            document.getElementById('distance').textContent = distanceInKm.toFixed(1) + ' km';
-            document.getElementById('duration').textContent = durationMinutes + ' min';
-            document.getElementById('distanceValue').textContent = distanceInKm.toFixed(1) + ' km';
-            
-            // Hitung total harga
-            calculateTotalPrice();
-            
-            // Aktifkan tombol pesan
-            document.getElementById('orderBtn').disabled = false;
-            
-            // Sesuaikan view peta
-            const bounds = new google.maps.LatLngBounds();
-            bounds.extend(fromLatLng);
-            bounds.extend(toLatLng);
-            map.fitBounds(bounds);
-            
-            // Perluas info container
-            document.getElementById('infoContainer').classList.add('expanded');
-          } else {
-            showMessage('Gagal menghitung rute: ' + status, true);
-          }
-        }
-      );
-    }
-    
-    // Fungsi untuk menghitung total harga
-    function calculateTotalPrice() {
-      if (hargaPerKm > 0 && distanceInKm > 0) {
-        const totalPrice = Math.round(distanceInKm * hargaPerKm);
-        document.getElementById('totalPrice').textContent = 'Rp ' + totalPrice.toLocaleString('id-ID');
-      }
-    }
-    
-    // Fungsi untuk memilih kendaraan
-    function selectVehicle(vehicle) {
-      selectedVehicle = vehicle;
-      
-      // Update UI
-      document.querySelectorAll('.vehicle-option').forEach(option => {
-        option.classList.remove('selected');
-      });
-      
-      const selectedOption = document.querySelector(`.vehicle-option[data-vehicle="${vehicle}"]`);
-      if (selectedOption) {
-        selectedOption.classList.add('selected');
-      }
-      
-      // Update marker jika sudah ada
-      if (markerA) {
-        markerA.setIcon({
-          url: iconUrls[vehicle] || iconUrls.motor,
-          scaledSize: new google.maps.Size(40, 40)
-        });
-      }
-    }
-    
-    // Fungsi untuk membuat pesanan
-    async function createOrder() {
-      const fromAddress = document.getElementById('fromInput').value;
-      const toAddress = document.getElementById('toInput').value;
-      
-      // Validasi input
-      if (!fromAddress || !toAddress) {
-        showMessage('Alamat penjemputan dan tujuan harus diisi!', true);
-        return;
-      }
-      
-      if (distanceInKm <= 0) {
-        showMessage('Silahkan tentukan rute yang valid', true);
-        return;
-      }
-      
-      if (!fromLatLng || !toLatLng) {
-        showMessage('Silahkan pilih alamat yang valid di peta', true);
-        return;
-      }
-      
-      showRadar('Memproses pesanan...');
-      
-      try {
-        // Buat order_id unik (timestamp)
-        const orderId = Date.now().toString();
-        
-        // Dapatkan data yang diperlukan
-        const totalPrice = Math.round(distanceInKm * hargaPerKm);
-        const durationMinutes = parseInt(document.getElementById('duration').textContent);
-        
-        // Data untuk disimpan di Firebase
-        const orderData = {
-          from: fromAddress,
-          to: toAddress,
-          from_latlng: `${fromLatLng.lat()},${fromLatLng.lng()}`,
-          to_latlng: `${toLatLng.lat()},${toLatLng.lng()}`,
-          vehicle: selectedVehicle,
-          distance: `${distanceInKm.toFixed(1)} km`,
-          duration: `${durationMinutes} mins`,
-          totalPrice: totalPrice,
-          userID: userID,
-          userName: userName,
-          phone: phone,
-          status: "pending",
-          timestamp: firebase.database.ServerValue.TIMESTAMP
-        };
-        
-        // Simpan ke Firebase
-        if (!firebase.apps.length) {
-          firebase.initializeApp({
-            databaseURL: firebaseUrl
-          });
-        }
-        
-        const db = firebase.database();
-        await db.ref(`orders/${orderId}`).set(orderData);
-        
-        // Kirim status ke App Inventor
-        sendToAppInventor(`ORDER:success|${orderId}`);
-        
-        showMessage('Pemesanan berhasil! Driver sedang dicari...', false);
-        
-        // Nonaktifkan tombol sementara
-        document.getElementById('orderBtn').disabled = true;
-        setTimeout(() => {
-          document.getElementById('orderBtn').disabled = false;
-        }, 5000);
-        
-      } catch (error) {
-        const errorMessage = error.message || 'Terjadi kesalahan saat memproses pemesanan';
-        showMessage(errorMessage, true);
-        sendToAppInventor(`ERROR:order|${errorMessage}`);
-      } finally {
-        hideRadar();
-      }
-    }
-    
-    // Fungsi untuk menampilkan radar
-    function showRadar(message) {
-      const radar = document.getElementById('radar');
-      radar.querySelector('span').textContent = message;
-      radar.style.display = 'flex';
-    }
-    
-    // Fungsi untuk menyembunyikan radar
+
+    const getLatLng = (val) => {
+      if (!val) return null;
+      const parts = val.split(',').map(Number);
+      return parts.length === 2 && !isNaN(parts[0]) && !isNaN(parts[1]) ? { lat: parts[0], lng: parts[1] } : null;
+    };
+
     function hideRadar() {
+      clearInterval(radarInterval);
       document.getElementById('radar').style.display = 'none';
     }
-    
-    // Fungsi untuk menginisialisasi vehicle selector
-    function initVehicleSelector() {
-      const vehicleSelector = document.getElementById('vehicleSelector');
-      const vehicles = [
-        { id: 'motor', name: 'Motor', icon: 'fa-motorcycle' },
-        { id: 'mobil', name: 'Mobil', icon: 'fa-car' },
-        { id: 'bentor', name: 'Bentor', icon: 'fa-truck-pickup' },
-        { id: 'kurir', name: 'Kurir', icon: 'fa-shipping-fast' },
-        { id: 'pickup', name: 'Pickup', icon: 'fa-truck' }
-      ];
-      
-      vehicles.forEach(vehicle => {
-        const option = document.createElement('div');
-        option.className = 'vehicle-option';
-        if (vehicle.id === selectedVehicle) option.classList.add('selected');
-        option.dataset.vehicle = vehicle.id;
-        option.innerHTML = `
-          <i class="fas ${vehicle.icon}"></i>
-          <div>${vehicle.name}</div>
-        `;
-        option.addEventListener('click', () => selectVehicle(vehicle.id));
-        vehicleSelector.appendChild(option);
+
+    function showRadar(message) {
+      if (!markerA) return;
+      map.panTo(markerA.getPosition());
+      map.setZoom(18);
+      const radar = document.getElementById('radar');
+      radar.style.display = 'flex';
+      radar.querySelector('span').style.display = 'none';
+      let zoomLevel = 18;
+      const zoomStep = 0.01;
+      radarInterval = setInterval(() => {
+        if (zoomLevel > 12) {
+          zoomLevel -= zoomStep;
+          map.setZoom(zoomLevel);
+        }
+      }, 150);
+    }
+
+    function reverseGeocode(latlng, callback) {
+      const geocoder = new google.maps.Geocoder();
+      geocoder.geocode({ location: latlng }, (results, status) => {
+        if (status === 'OK' && results[0]) {
+          callback(results[0].formatted_address);
+        } else {
+          callback(null);
+        }
       });
     }
-    
-    // Event saat halaman dimuat
-    document.addEventListener('DOMContentLoaded', function() {
-      // Kirim status bahwa halaman dimuat
+
+    function sendToAppInventor(data) {
+      const jsonData = JSON.stringify(data);
       if (window.AppInventor && window.AppInventor.setWebViewString) {
-        window.AppInventor.setWebViewString("LOADED:Halaman pemesanan telah dimuat");
+        window.AppInventor.setWebViewString(jsonData);
       }
-      
-      // Inisialisasi vehicle selector
-      initVehicleSelector();
-      
-      // Dapatkan parameter dari URL
-      const params = getUrlParams();
-      
-      // Periksa API Key Google Maps
-      googleMapsApiKey = params.googleMapsApiKey;
-      if (!googleMapsApiKey) {
-        showMessage('API Key Google Maps tidak ditemukan. Mohon periksa URL.', true);
-        showRadar('API Key tidak ditemukan');
-        return;
+      else if (window.AndroidInterface) {
+        window.AndroidInterface.receiveData(jsonData);
       }
-      
-      // Muat Google Maps API dengan libraries yang diperlukan
+      else if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.iosHandler) {
+        window.webkit.messageHandlers.iosHandler.postMessage(jsonData);
+      }
+    }
+
+    function tryDirection() {
+      if (!markerA || !markerB) return;
+      const from = markerA.getPosition();
+      const to = markerB.getPosition();
+      const isMotor = vehicle === "motor";
+
+      if (circleB) circleB.setMap(null);
+      showRadar('Menghitung rute...');
+
+      directionsService.route({
+        origin: from,
+        destination: to,
+        travelMode: google.maps.TravelMode.DRIVING,
+        region: "ID",
+        avoidTolls: isMotor
+      }, (res, status) => {
+        hideRadar();
+        if (status === "OK") {
+          directionsRenderer.setDirections(res);
+          const leg = res.routes[0].legs[0];
+          const durasiTraffic = leg.duration_in_traffic ? leg.duration_in_traffic.text : leg.duration.text;
+
+          circleB = new google.maps.Circle({
+            center: to,
+            radius: 50,
+            map: map,
+            strokeColor: "#4285f4",
+            strokeOpacity: 0.5,
+            strokeWeight: 2,
+            fillColor: "#4285f4",
+            fillOpacity: 0.1
+          });
+
+          const jarakKm = leg.distance.value / 1000;
+          const harga = Math.round(jarakKm * hargaPerKm);
+
+          const hasil = {
+            jarak: leg.distance.text,
+            jarak_km: jarakKm,
+            durasi: leg.duration.text,
+            durasi_traffic: durasiTraffic,
+            harga_per_km: hargaPerKm,
+            harga_total: harga,
+            alamat_a: document.getElementById("fromInput").value,
+            alamat_b: document.getElementById("toInput").value,
+            from_lat: from.lat(),
+            from_lng: from.lng(),
+            to_lat: to.lat(),
+            to_lng: to.lng(),
+            vehicle: vehicle,
+            status: "success"
+          };
+
+          sendToAppInventor(hasil);
+        } else {
+          sendToAppInventor({
+            status: "error",
+            message: "Gagal menghitung rute: " + status
+          });
+        }
+      });
+    }
+
+    function initMap() {
+      const lokasiA = getLatLng(fromParam);
+      const lokasiB = getLatLng(toParam);
+
+      const styledMapType = new google.maps.StyledMapType(
+  [
+    { elementType: "geometry", stylers: [{ color: "#212121" }] },
+    { elementType: "labels.icon", stylers: [{ visibility: "off" }] },
+    { elementType: "labels.text.fill", stylers: [{ color: "#757575" }] },
+    { elementType: "labels.text.stroke", stylers: [{ color: "#212121" }] },
+    { featureType: "administrative", elementType: "geometry", stylers: [{ color: "#757575" }] },
+    { featureType: "poi", elementType: "geometry", stylers: [{ color: "#2e2e2e" }] },
+    { featureType: "poi", elementType: "labels.text.fill", stylers: [{ color: "#9e9e9e" }] },
+    { featureType: "road", elementType: "geometry", stylers: [{ color: "#383838" }] },
+    { featureType: "road.arterial", elementType: "geometry", stylers: [{ color: "#373737" }] },
+    { featureType: "road.highway", elementType: "geometry", stylers: [{ color: "#3c3c3c" }] },
+    { featureType: "road.local", elementType: "geometry", stylers: [{ color: "#2c2c2c" }] },
+    { featureType: "transit", elementType: "geometry", stylers: [{ color: "#2f2f2f" }] },
+    { featureType: "water", elementType: "geometry", stylers: [{ color: "#000000" }] },
+    { featureType: "water", elementType: "labels.text.fill", stylers: [{ color: "#3d3d3d" }] }
+  ],
+  { name: "Mode Malam" }
+);
+
+      map = new google.maps.Map(document.getElementById("map"), {
+        zoom: 15,
+        center: lokasiA || { lat: -6.2, lng: 106.8 },
+        clickableIcons: false,
+        gestureHandling: "greedy"
+      });
+
+      map.mapTypes.set("styled_map", styledMapType);
+      map.setMapTypeId("styled_map");
+
+      directionsService = new google.maps.DirectionsService();
+      directionsRenderer = new google.maps.DirectionsRenderer({ map: map, suppressMarkers: true });
+
+      if (lokasiA) {
+        markerA = new google.maps.Marker({
+          position: lokasiA,
+          map: map,
+          icon: { url: iconUrls[vehicle], scaledSize: new google.maps.Size(40, 40) }
+        });
+        reverseGeocode(lokasiA, (alamat) => {
+          document.getElementById("fromInput").value = alamat || "";
+        });
+      }
+
+      if (lokasiB) {
+        markerB = new google.maps.Marker({
+          position: lokasiB,
+          map: map,
+          icon: {
+            url: "https://cdn-icons-png.flaticon.com/512/684/684908.png",
+            scaledSize: new google.maps.Size(40, 40)
+          }
+        });
+        reverseGeocode(lokasiB, (alamat) => {
+          document.getElementById("toInput").value = alamat || "";
+        });
+      }
+
+      if (lokasiA && lokasiB) tryDirection();
+    }
+
+    function initAutocomplete() {
+      const fromInput = document.getElementById("fromInput");
+      const toInput = document.getElementById("toInput");
+      const autocompleteFrom = new google.maps.places.Autocomplete(fromInput);
+      const autocompleteTo = new google.maps.places.Autocomplete(toInput);
+
+      autocompleteFrom.addListener('place_changed', function() {
+        const place = autocompleteFrom.getPlace();
+        if (!place.geometry) return;
+        if (markerA) markerA.setMap(null);
+        markerA = new google.maps.Marker({
+          position: place.geometry.location,
+          map: map,
+          icon: { url: iconUrls[vehicle], scaledSize: new google.maps.Size(40, 40) }
+        });
+        map.panTo(place.geometry.location);
+        if (markerB) tryDirection();
+      });
+
+      autocompleteTo.addListener('place_changed', function() {
+        const place = autocompleteTo.getPlace();
+        if (!place.geometry) return;
+        if (markerB) markerB.setMap(null);
+        markerB = new google.maps.Marker({
+          position: place.geometry.location,
+          map: map,
+          icon: {
+            url: "https://cdn-icons-png.flaticon.com/512/684/684908.png",
+            scaledSize: new google.maps.Size(40, 40)
+          }
+        });
+        if (markerA) tryDirection();
+      });
+    }
+
+    function onLoad() {
+      try {
+        initMap();
+        initAutocomplete();
+      } catch (error) {
+        sendToAppInventor({ status: "error", message: "Gagal memuat peta: " + error.message });
+      }
+    }
+  </script>
+
+  <script>
+    const keyParam = new URLSearchParams(window.location.search).get("key");
+    if (keyParam) {
       const script = document.createElement("script");
-      script.src = `https://maps.googleapis.com/maps/api/js?key=${googleMapsApiKey}&libraries=places,geometry,directions&callback=initMap`;
+      script.src = `https://maps.googleapis.com/maps/api/js?key=${keyParam}&libraries=places&callback=onLoad`;
       script.async = true;
       script.defer = true;
-      script.onerror = function() {
-        showMessage('Gagal memuat Google Maps API. Mohon periksa API Key.', true);
-        showRadar('Gagal memuat peta');
-      };
       document.head.appendChild(script);
-    });
+    } else {
+      const errorMsg = "API Key Google Maps tidak ditemukan di URL.";
+      document.getElementById('radar').style.display = 'flex';
+      document.getElementById('radar').querySelector('span').textContent = 'Error: API Key tidak ditemukan';
+      if (window.AppInventor) {
+        window.AppInventor.setWebViewString(JSON.stringify({
+          status: "error",
+          message: errorMsg
+        }));
+      }
+    }
+    document.addEventListener("contextmenu", function(e) {
+  e.preventDefault();
+});
   </script>
 </body>
 </html>
