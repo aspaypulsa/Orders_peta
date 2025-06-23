@@ -1124,8 +1124,8 @@
         autocompleteFrom = new google.maps.places.Autocomplete(
           document.getElementById('fromInput'),
           {
-            types: ['geocode'], // Tampilkan alamat lengkap
-            fields: ['geometry', 'formatted_address', 'address_components'],
+            // types: ['geocode'], // ← ini dihapus atau dikomentari
+fields: ['geometry', 'formatted_address', 'name', 'place_id'],
             componentRestrictions: { country: 'id' }, // Batasi ke Indonesia
             bounds: indonesiaBounds, // Batasi wilayah ke Indonesia
             strictBounds: false
@@ -1136,8 +1136,8 @@
         autocompleteTo = new google.maps.places.Autocomplete(
           document.getElementById('toInput'),
           {
-            types: ['geocode'], // Tampilkan alamat lengkap
-            fields: ['geometry', 'formatted_address', 'address_components'],
+            // types: ['geocode'], // ← ini dihapus atau dikomentari
+fields: ['geometry', 'formatted_address', 'name', 'place_id'],
             componentRestrictions: { country: 'id' }, // Batasi ke Indonesia
             bounds: indonesiaBounds, // Batasi wilayah ke Indonesia
             strictBounds: false
