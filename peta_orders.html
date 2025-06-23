@@ -300,6 +300,7 @@
       padding: 25px;
       display: flex;
       flex-direction: column;
+      overflow-y: auto; /* Memungkinkan konten discroll */
       display: none;
     }
 
@@ -363,7 +364,7 @@
       font-size: 18px;
       border: none;
       cursor: pointer;
-      margin-top: 20px;
+      margin-top: auto; /* Posisi tetap di bawah */
       box-shadow: 0 4px 15px rgba(66, 133, 244, 0.4);
       transition: all 0.2s;
       text-decoration: none;
@@ -1123,8 +1124,8 @@
         autocompleteFrom = new google.maps.places.Autocomplete(
           document.getElementById('fromInput'),
           {
-            // types: ['geocode'], // dikomentari agar semua jenis tempat bisa muncul
-fields: ['geometry', 'formatted_address', 'name', 'place_id'],
+            types: ['geocode'], // Tampilkan alamat lengkap
+            fields: ['geometry', 'formatted_address', 'address_components'],
             componentRestrictions: { country: 'id' }, // Batasi ke Indonesia
             bounds: indonesiaBounds, // Batasi wilayah ke Indonesia
             strictBounds: false
@@ -1135,8 +1136,8 @@ fields: ['geometry', 'formatted_address', 'name', 'place_id'],
         autocompleteTo = new google.maps.places.Autocomplete(
           document.getElementById('toInput'),
           {
-            // types: ['geocode'], // dikomentari agar semua jenis tempat bisa muncul
-fields: ['geometry', 'formatted_address', 'name', 'place_id'],
+            types: ['geocode'], // Tampilkan alamat lengkap
+            fields: ['geometry', 'formatted_address', 'address_components'],
             componentRestrictions: { country: 'id' }, // Batasi ke Indonesia
             bounds: indonesiaBounds, // Batasi wilayah ke Indonesia
             strictBounds: false
@@ -1257,7 +1258,22 @@ fields: ['geometry', 'formatted_address', 'name', 'place_id'],
             
           // Calculate price
           const distanceKm = leg.distance.value / 1000;
-          const totalPrice = Math.round(distanceKm * orderData.hargaPerKm);
+          
+          // Harga minimum berdasarkan jenis kendaraan
+          const hargaMinimum = {
+            motor: 10000,
+            bentor: 13000,
+            kurir: 10000,
+            mobil: 15000,
+            pickup: 90000,
+            pickup_scooter: 12000
+          };
+          
+          let totalPrice = Math.round(distanceKm * orderData.hargaPerKm);
+          const minHarga = hargaMinimum[orderData.vehicle] || 10000;
+          if (totalPrice < minHarga) {
+            totalPrice = minHarga;
+          }
           
           // Update order data
           orderData.distance = leg.distance.text;
@@ -1356,6 +1372,9 @@ fields: ['geometry', 'formatted_address', 'name', 'place_id'],
           statusIndicator.className = "status-indicator status-cancelled";
           statusIndicator.style.display = "block";
           
+          // Tampilkan tombol back
+          document.getElementById("backBtn").style.display = "block";
+          
           showNotification("Order telah dibatalkan", "error");
           resetOrderForm();
           break;
@@ -1364,6 +1383,12 @@ fields: ['geometry', 'formatted_address', 'name', 'place_id'],
           statusIndicator.textContent = "Driver Menuju Lokasi";
           statusIndicator.className = "status-indicator status-accepted";
           statusIndicator.style.display = "block";
+          
+          // Sembunyikan radar
+          document.getElementById("radar").style.display = "none";
+          
+          // Sembunyikan tombol back
+          document.getElementById("backBtn").style.display = "none";
           
           // Update driver data
           driverData.driverID = data.driverID || "";
@@ -1390,6 +1415,9 @@ fields: ['geometry', 'formatted_address', 'name', 'place_id'],
           break;
           
         case "selesai":
+          // Tampilkan tombol back
+          document.getElementById("backBtn").style.display = "block";
+          
           // Show completion animation
           document.getElementById("completionAnimation").style.display = "flex";
           break;
@@ -1422,6 +1450,11 @@ fields: ['geometry', 'formatted_address', 'name', 'place_id'],
       
       document.getElementById("loadingText").textContent = "Mengirim order...";
       document.getElementById("loading").style.display = "flex";
+      
+      // Sembunyikan tombol "Cari Driver" dan ubah tampilan tombol "Batalkan"
+      document.getElementById("findDriverBtn").style.display = "none";
+      document.getElementById("cancelBtn").style.flex = "1";
+      document.getElementById("cancelBtn").style.maxWidth = "100%";
       
       // Prepare order data
       const orderPayload = {
@@ -1529,6 +1562,11 @@ fields: ['geometry', 'formatted_address', 'name', 'place_id'],
       document.getElementById("toInput").value = "";
       document.getElementById("pickupAddress").textContent = "-";
       document.getElementById("destinationAddress").textContent = "-";
+      
+      // Tampilkan kembali tombol "Cari Driver"
+      document.getElementById("findDriverBtn").style.display = "block";
+      document.getElementById("cancelBtn").style.flex = "";
+      document.getElementById("cancelBtn").style.maxWidth = "";
       
       if (markerA) markerA.setMap(null);
       if (markerB) markerB.setMap(null);
