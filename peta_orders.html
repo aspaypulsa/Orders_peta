@@ -910,6 +910,7 @@
       userID: "",
       userName: "",
       phone: "",
+      photo_url: "", // Tambahkan field untuk foto profil
       status: "pending",
       from_lat: 0,
       from_lng: 0,
@@ -955,6 +956,7 @@
       orderData.userName = getUrlParam("userName");
       orderData.phone = getUrlParam("phone");
       orderData.order_id = getUrlParam("order_id");
+      orderData.photo_url = getUrlParam("photo_url"); // Ambil photo_url dari parameter URL
       
       // Set harga per km
       const hargaPerKm = parseFloat(getUrlParam("harga")) || 0;
@@ -1456,7 +1458,7 @@ fields: ['geometry', 'formatted_address', 'name', 'place_id'],
       document.getElementById("cancelBtn").style.flex = "1";
       document.getElementById("cancelBtn").style.maxWidth = "100%";
       
-      // Prepare order data
+      // Prepare order data dengan menyertakan photo_url
       const orderPayload = {
         from: orderData.from,
         to: orderData.to,
@@ -1469,6 +1471,7 @@ fields: ['geometry', 'formatted_address', 'name', 'place_id'],
         userID: orderData.userID,
         userName: orderData.userName,
         phone: orderData.phone,
+        photo_url: orderData.photo_url || "", // Sertakan photo_url
         status: "pending",
         timestamp: firebase.database.ServerValue.TIMESTAMP
       };
